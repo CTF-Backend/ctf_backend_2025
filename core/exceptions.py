@@ -1,4 +1,4 @@
-from CTFBackend2025.apps_exceptions import AppException
+from utils.apps_exceptions import AppException
 
 
 class EmailISNotValid(AppException):
@@ -11,11 +11,6 @@ class UsernameIsRequired(AppException):
     message_en = 'team name is required.'
 
 
-class IsSuperuserMustBeTrue(AppException):
-    message = 'برای ادمین تیک تایید کاربر ویژه باید زده شود.'
-    message_en = 'for the admin, the is_superuser checkbox must be selected.'
-
-
 class PasswordISNotSameAsPassword2(AppException):
-    message = 'پسورد ارسال شده با تکرار پسورد تطابق ندارد.'
-    message_en = 'password and password2 are not match.'
+    message = 'پسورد ارسال شده با پسورد تکرار شده تطابق ندارد.'
+    message_en = 'The password sent does not match the repeated password.'

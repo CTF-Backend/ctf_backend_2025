@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import TeamSignUpAPIView, StaffSignUpAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -6,9 +7,9 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path('team/signup', TokenObtainPairView.as_view(), name='jwt_create'),
+    path('team/signup/', TeamSignUpAPIView.as_view(), name='team_signup'),
+    path('staff/signup/', StaffSignUpAPIView.as_view(), name='staff_signup')
 
-
-    path('jwt/create/', TokenObtainPairView.as_view(), name='jwt_create')
+    # path('jwt/create/', TokenObtainPairView.as_view(), name='jwt_create')
 
 ]

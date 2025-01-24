@@ -10,6 +10,10 @@ class TeamSignUpAPIView(generics.CreateAPIView):
     serializer_class = serializers.TeamAuthSerializer
 
 
+class StaffSignUpAPIView(generics.CreateAPIView):
+    serializer_class = serializers.StaffAuthSerializer
+
+
 class LoginAPIView(APIView):
     pass
     # def post(self, request, *args, **kwargs):
