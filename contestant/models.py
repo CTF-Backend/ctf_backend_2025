@@ -1,4 +1,5 @@
 from django.db import models
+from core.models import *
 
 
 class EscapeRoomQuestion(models.Model):
@@ -14,5 +15,5 @@ class EscapeRoomQuestion(models.Model):
     flag = models.CharField(max_length=255, verbose_name="پرچم")
     coin = models.IntegerField(verbose_name="مقدار سکه")
 
-    # ToDo : add creator
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="escape_room_questions")
     created_at = models.DateTimeField(auto_now_add=True)

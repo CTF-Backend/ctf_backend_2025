@@ -22,5 +22,6 @@ class EscapeRoomQuestionListCreateAPIView(generics.ListCreateAPIView):
         'answer_limitation',
         'flag',
         'coin',
+        'creator',
         'created_at',
     ]
