@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'contestant',
     'corsheaders',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -117,8 +119,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'core.serializers.CustomLoginSerializer',
 }
 
 # Internationalization

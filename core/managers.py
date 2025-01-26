@@ -1,6 +1,6 @@
 from django.contrib.auth.models import BaseUserManager
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
 from .exceptions import *
 
 

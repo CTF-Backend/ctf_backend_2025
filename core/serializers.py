@@ -2,6 +2,8 @@ from rest_framework import serializers
 from core import models
 from core.models import CustomUser
 from . import exceptions
+from dj_rest_auth.serializers import LoginSerializer
+from django.contrib.auth import authenticate
 
 
 class TeamAuthSerializer(serializers.ModelSerializer):
@@ -49,3 +51,22 @@ class StaffAuthSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return team
+
+
+class CustomLoginSerializer(LoginSerializer):
+    username = serializers.CharField()
+    password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False)
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if not username or not password:
+            raise exceptions.PasswordAndUsernameIsRequired()
+
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise exceptions.PasswordOrUsernameIsIncorrect()
+
+        attrs['user'] = user
+        return attrs
