@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ht&gt!2bi&5=9b%y_j2r%yq==*8y^nonsy18)0%m$5f^y-e3im'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'core',
+    'staff',
+    'contestant',
     'corsheaders',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +113,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'utils.exception_handler.custom_exception_handler',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'core.serializers.CustomLoginSerializer',
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -131,3 +148,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_HEADERS = True
+
+AUTH_USER_MODEL = 'core.CustomUser'
