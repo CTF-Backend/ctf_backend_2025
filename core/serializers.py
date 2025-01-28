@@ -7,6 +7,12 @@ from dj_rest_auth.serializers import LoginSerializer
 from django.contrib.auth import authenticate
 
 
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CustomUser
+        fields = ('id', 'username', 'email')
+
+
 class TeamSignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=255)
     password2 = serializers.CharField(write_only=True, max_length=255)
