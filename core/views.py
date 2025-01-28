@@ -1,16 +1,15 @@
 from core import serializers
 from rest_framework import generics
-from dj_rest_auth.views import LoginView, LogoutView
+from dj_rest_auth.views import LoginView
 from .serializers import CustomLoginSerializer
-from . import exceptions
 
 
 class TeamSignUpAPIView(generics.CreateAPIView):
-    serializer_class = serializers.TeamAuthSerializer
+    serializer_class = serializers.TeamSignUpSerializer
 
 
 class StaffSignUpAPIView(generics.CreateAPIView):
-    serializer_class = serializers.StaffAuthSerializer
+    serializer_class = serializers.StaffSignUpSerializer
 
 
 class CustomLoginView(LoginView):

@@ -1,18 +1,20 @@
 from rest_framework import serializers
 from core import models
+from contestant import models as contestant_models
 from core.models import CustomUser
 from . import exceptions
 from dj_rest_auth.serializers import LoginSerializer
 from django.contrib.auth import authenticate
 
 
-class TeamAuthSerializer(serializers.ModelSerializer):
+class TeamSignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=255)
     password2 = serializers.CharField(write_only=True, max_length=255)
+    team_name = serializers.CharField(write_only=True, max_length=255)
 
     class Meta:
         model = models.CustomUser
-        fields = ('id', 'username', 'password', 'password2')
+        fields = ('id', 'username', 'password', 'password2', 'team_name')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -21,16 +23,21 @@ class TeamAuthSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['is_team'] = True
+        team_name = validated_data.pop('team_name')
         validated_data.pop('password2')
-        team = CustomUser.objects.create_user(
+        team_account = CustomUser.objects.create_user(
             username=validated_data.pop('username', None),
             password=validated_data.pop('password', None),
             **validated_data
         )
-        return team
+        contestant_models.Team.objects.create(
+            account=team_account,
+            name=team_name
+        )
+        return team_account
 
 
-class StaffAuthSerializer(serializers.ModelSerializer):
+class StaffSignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=255)
     password2 = serializers.CharField(write_only=True, max_length=255)
 
