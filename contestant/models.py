@@ -4,7 +4,7 @@ from . import consts
 
 
 class Team(models.Model):
-    account = models.OneToOneField(CustomUser, on_delete=models.PROTECT, related_name='team')
+    account = models.OneToOneField(CustomUser, on_delete=models.PROTECT, related_name="team")
     name = models.CharField(max_length=255, verbose_name="نام تیم")
     score = models.IntegerField(verbose_name="امتیاز", null=True, blank=True)
     coin = models.IntegerField(verbose_name="سکه", null=True, blank=True)
@@ -15,7 +15,7 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='team_members', verbose_name="تیم")
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_members", verbose_name="تیم")
     name = models.CharField(max_length=255, verbose_name="نام", unique=True)
     university_entry_year = models.IntegerField(verbose_name="سال ورودی")
     phone_number = models.CharField(max_length=255, verbose_name="شماره تلفن")
@@ -40,4 +40,18 @@ class EscapeRoomQuestion(models.Model):
     coin = models.IntegerField(verbose_name="سکه")
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="escape_room_questions")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CTFQuestion(models.Model):
+    name = models.CharField(max_length=255, verbose_name="نام", unique=True)
+    description = models.TextField(verbose_name="توضیحات")
+    type = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TYPE_CHOICES,
+                            default="file", verbose_name="نوع")
+    topic = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TOPIC_CHOICES,
+                             default="steganography", verbose_name="موضوع")
+    file = models.FileField(upload_to="uploads/", verbose_name="فایل")
+    is_shown = models.BooleanField(default=True, verbose_name="قابل مشاهده")
+
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
     created_at = models.DateTimeField(auto_now_add=True)

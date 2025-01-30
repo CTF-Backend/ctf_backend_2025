@@ -23,6 +23,36 @@ class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 
+class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.TeamMember.objects.all()
+    serializer_class = serializers.TeamMemberSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'team__name',
+        'name',
+        'university_entry_year',
+        'phone_number',
+        'student_number',
+        'email',
+    ]
+
+    ordering_fields = [
+        'team__name',
+        'name',
+        'university_entry_year',
+        'phone_number',
+        'student_number',
+        'email',
+    ]
+
+
+class TeamMemberDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.TeamMember.objects.all()
+    serializer_class = serializers.TeamMemberSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
 class EscapeRoomQuestionListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.EscapeRoomQuestion.objects.all()
     serializer_class = serializers.EscapeRoomQuestionListCreateSerializer
