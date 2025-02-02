@@ -2,7 +2,8 @@ from rest_framework import generics
 from rest_framework import permissions
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
+from django.contrib.auth import get_user_model
+from core.serializers import CustomUserSerializer
 from . import serializers
 from . import models
 
@@ -24,3 +25,9 @@ class NotificationCreateAPIView(generics.CreateAPIView):
                 "notification_type": notification.type,
             }
         )
+
+
+class StaffUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = get_user_model().objects.filter(is_staff=True)
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAdminUser]
