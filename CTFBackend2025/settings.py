@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='SALAM')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False, cast=bool)
@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'CTFBackend2025.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DATABASE_NAME'),
-        'HOST': env('DATABASE_HOST'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASS'),
+        'NAME': env('DATABASE_NAME', default='CTF'),
+        'HOST': env('DATABASE_HOST', default='localhost'),
+        'USER': env('DATABASE_USER', default='admin'),
+        'PASSWORD': env('DATABASE_PASS', default='admin'),
     }
 }
 
