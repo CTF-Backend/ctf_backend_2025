@@ -26,10 +26,10 @@ class NotificationCreateAPIView(generics.CreateAPIView):
         )
 
 
-class ClarificationDetailView(generics.RetrieveUpdateDestroyAPIView):
+class ClarificationDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Clarification.objects.all()
     serializer_class = serializers.ClarificationSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can access
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
