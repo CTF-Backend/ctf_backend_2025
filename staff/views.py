@@ -24,3 +24,13 @@ class NotificationCreateAPIView(generics.CreateAPIView):
                 "notification_type": notification.type,
             }
         )
+
+
+class ClarificationListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.Clarification.objects.all()
+    serializer_class = serializers.ClarificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(questioner=self.request.user)
+
