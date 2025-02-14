@@ -92,6 +92,20 @@ class EscapeRoomQuestionForContestantsListAPIView(generics.ListAPIView):
         'name',
         'description',
         'score',
-        'flag',
         'coin',
+    ]
+
+
+class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.CTFQuestion.objects.all()
+    serializer_class = serializers.CTFQuestionSerializer
+    permission_classes = [permissions.IsAdminUser]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'name', 'description', 'type', 'topic', 'file', 'is_shown',
+        'created_at'
+    ]
+    ordering_fields = [
+        'name', 'type', 'topic', 'file', 'is_shown',
+        'creator', 'created_at'
     ]

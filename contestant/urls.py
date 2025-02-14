@@ -19,4 +19,7 @@ urlpatterns = [
     path('escape-room-questions/contestans/', views.EscapeRoomQuestionForContestantsListAPIView.as_view(),
          name='escape-room-question-for-contestants'),
 
+    path('ctf-questions/', views.CTFQuestionListCreateAPIView.as_view(),
+         name='ctf-question'),
+
 ]

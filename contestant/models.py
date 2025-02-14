@@ -45,7 +45,7 @@ class EscapeRoomQuestion(models.Model):
 
 class CTFQuestion(models.Model):
     name = models.CharField(max_length=255, verbose_name="نام", unique=True)
-    description = models.TextField(verbose_name="توضیحات")
+    description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
     type = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TYPE_CHOICES,
                             default="file", verbose_name="نوع")
     topic = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TOPIC_CHOICES,
@@ -55,3 +55,31 @@ class CTFQuestion(models.Model):
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CTFFlags(models.Model):
+    ctf_question = models.ForeignKey(CTFQuestion, on_delete=models.PROTECT, related_name="ctf_questions_flags")
+    flag = models.CharField(max_length=255, verbose_name="فلگ")
+    score = models.IntegerField(verbose_name="امتیاز")
+
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_flags")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class FlagHints(models.Model):
+    flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="ctf_flag_hints")
+    hint = models.CharField(max_length=255, verbose_name="راهنمایی")
+    coin = models.IntegerField(verbose_name="سکه")
+
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="flag_hints")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TeamEscapeRoomQuestion(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="escape_room_questions")
+    escape_room_question = models.ForeignKey(EscapeRoomQuestion, on_delete=models.PROTECT)
+
+
+class TeamCTFFlags(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="ctf_flags")
+    flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT)

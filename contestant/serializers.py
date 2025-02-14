@@ -66,3 +66,17 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
             'flag',
             'coin',
         ]
+
+
+class CTFQuestionSerializer(serializers.ModelSerializer):
+    creator = core_serializers.CustomUserSerializer(read_only=True)
+
+    class Meta:
+        model = models.CTFQuestion
+        fields = '__all__'
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and request.user:
+            validated_data['creator'] = request.user
+        return super().create(validated_data)
