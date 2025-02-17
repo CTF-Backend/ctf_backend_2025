@@ -68,7 +68,7 @@ class CTFFlags(models.Model):
 
 class FlagHints(models.Model):
     flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="ctf_flag_hints")
-    hint = models.CharField(max_length=255, verbose_name="راهنمایی")
+    hint = models.TextField(verbose_name="راهنمایی")
     coin = models.IntegerField(verbose_name="سکه")
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="flag_hints")

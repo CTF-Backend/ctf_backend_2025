@@ -1,4 +1,6 @@
 from rest_framework import generics, filters
+from rest_framework.permissions import IsAdminUser
+
 from contestant import serializers
 from rest_framework import permissions
 from contestant import models
@@ -128,4 +130,16 @@ class CTFFlagsListCreateAPIView(generics.ListCreateAPIView):
 class CTFFlagsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.CTFFlags.objects.all()
     serializer_class = serializers.CTFFlagsSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class FlagHintsListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.FlagHints.objects.all()
+    serializer_class = serializers.FlagHintsSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class FlagHintsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.FlagHints.objects.all()
+    serializer_class = serializers.FlagHintsSerializer
     permission_classes = [permissions.IsAdminUser]

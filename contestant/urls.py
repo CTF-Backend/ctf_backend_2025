@@ -29,4 +29,9 @@ urlpatterns = [
     path('ctf-flags/<int:pk>/', views.CTFFlagsDetailAPIView.as_view(),
          name='ctf-flags-detail'),
 
+    path('flag-hints/', views.FlagHintsListCreateAPIView.as_view(),
+         name='ctf-flag'),
+    path('flag-hints/<int:pk>/', views.FlagHintsDetailAPIView.as_view(),
+         name='ctf-flags-detail'),
+
 ]
