@@ -117,3 +117,9 @@ class CTFQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.CTFQuestion.objects.all()
     serializer_class = serializers.CTFQuestionSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class CTFFlagsListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.CTFFlags.objects.all()
+    serializer_class = serializers.CTFFlagsSerializer
+    permission_classes = [permissions.IsAdminUser]
