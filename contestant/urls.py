@@ -26,7 +26,7 @@ urlpatterns = [
 
     path('ctf-flags/', views.CTFFlagsListCreateAPIView.as_view(),
          name='ctf-flag'),
-    # path('ctf-questions/<int:pk>/', views.CTFQuestionDetailAPIView.as_view(),
-    #      name='ctf-question-detail'),
+    path('ctf-flags/<int:pk>/', views.CTFFlagsDetailAPIView.as_view(),
+         name='ctf-flags-detail'),
 
 ]

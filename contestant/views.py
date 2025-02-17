@@ -123,3 +123,9 @@ class CTFFlagsListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.CTFFlags.objects.all()
     serializer_class = serializers.CTFFlagsSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class CTFFlagsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.CTFFlags.objects.all()
+    serializer_class = serializers.CTFFlagsSerializer
+    permission_classes = [permissions.IsAdminUser]
