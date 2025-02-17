@@ -21,5 +21,7 @@ urlpatterns = [
 
     path('ctf-questions/', views.CTFQuestionListCreateAPIView.as_view(),
          name='ctf-question'),
+    path('ctf-questions/<int:pk>/', views.CTFQuestionDetailAPIView.as_view(),
+         name='ctf-question-detail'),
 
 ]

@@ -97,9 +97,8 @@ class EscapeRoomQuestionForContestantsListAPIView(generics.ListAPIView):
 
 
 class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.CTFQuestion.objects.all()
     serializer_class = serializers.CTFQuestionSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
         'name', 'description', 'type', 'topic', 'file', 'is_shown',
@@ -109,3 +108,12 @@ class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
         'name', 'type', 'topic', 'file', 'is_shown',
         'creator', 'created_at'
     ]
+
+    def get_queryset(self):
+        return models.CTFQuestion.objects.filter(is_shown=True)
+
+
+class CTFQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.CTFQuestion.objects.all()
+    serializer_class = serializers.CTFQuestionSerializer
+    permission_classes = [permissions.IsAdminUser]
