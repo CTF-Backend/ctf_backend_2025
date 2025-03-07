@@ -3,7 +3,6 @@ from rest_framework import permissions
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
-from core.serializers import CustomUserSerializer
 from . import serializers
 from . import models
 from core.models import CustomUser
@@ -30,10 +29,10 @@ class NotificationCreateAPIView(generics.CreateAPIView):
 
 class StaffListAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_staff=True)
-    serializer_class = CustomUserSerializer
+    serializer_class = serializers.CustomUserSerializer
 
 
 class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.filter(is_staff=True)
-    serializer_class = CustomUserSerializer
+    serializer_class = serializers.CustomUserSerializer
     permission_classes = [permissions.IsAdminUser]
