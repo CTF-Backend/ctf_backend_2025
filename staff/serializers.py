@@ -14,6 +14,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = "__all__"
 
+
 class ClarificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clarification

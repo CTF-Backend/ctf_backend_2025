@@ -5,5 +5,5 @@ urlpatterns = [
     path('staff/', views.StaffListAPIView.as_view(), name='staff-list'),
     path("staff/<int:pk>/", views.StaffDetail.as_view(), name="staff-detail"),
   
-    path("clarifications/", ClarificationListCreateAPIView.as_view(), name='clarifications-list-create'),
+    path("clarifications/", views.ClarificationListCreateAPIView.as_view(), name='clarifications-list-create'),
 ]

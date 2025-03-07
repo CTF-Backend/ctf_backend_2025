@@ -36,7 +36,8 @@ class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.filter(is_staff=True)
     serializer_class = serializers.CustomUserSerializer
     permission_classes = [permissions.IsAdminUser]
-    
+
+
 class ClarificationListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.Clarification.objects.all()
     serializer_class = serializers.ClarificationSerializer
