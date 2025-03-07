@@ -29,12 +29,9 @@ urlpatterns = [
     path('ctf-flags/<int:pk>/', views.CTFFlagsDetailAPIView.as_view(),
          name='ctf-flags-detail'),
 
-    path('flag-hints/', views.FlagHintsListCreateAPIView.as_view(),
-         name='ctf-flag'),
-    path('flag-hints/<int:pk>/', views.FlagHintsDetailAPIView.as_view(),
-         name='ctf-flags-detail'),
-
     path('team-escape-room/', views.TeamEscapeRoomQuestionListCreateAPIView.as_view(),
          name='team-escape-room'),
+    path('team-ctf-flag/', views.TeamCTFFlagListCreateAPIView.as_view(),
+         name='team-ctf-flag'),
 
 ]

@@ -22,5 +22,10 @@ class FlagIsWrong(AppException):
 
 
 class FlagIsDuplicate(AppException):
-    message = 'شما قبلا به این معما پاسخ داده اید.'
-    message_en = 'You have already answered this riddle before.'
+    message = 'شما قبلا به این سوال پاسخ داده اید.'
+    message_en = 'You have already answered this question before.'
+
+
+class UserDoesNotHaveTeam(AppException):
+    message = 'کاربر وارد شده دارای تیم نمیباشد.'
+    message_en = 'User does not have team.'

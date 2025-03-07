@@ -63,7 +63,6 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
             'name',
             'description',
             'score',
-            'flag',
             'coin',
         ]
 
@@ -84,10 +83,12 @@ class CTFQuestionSerializer(serializers.ModelSerializer):
 
 class CTFFlagsSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
+    ctf_question = CTFQuestionSerializer(read_only=True)
+    ctf_question_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = models.CTFFlags
-        fields = '__all__'
+        fields = ['id', 'ctf_question', 'ctf_question_id', 'flag', 'score', 'hint', 'coin', 'creator', 'created_at']
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -96,41 +97,36 @@ class CTFFlagsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class FlagHintsSerializer(serializers.ModelSerializer):
-    creator = core_serializers.CustomUserSerializer(read_only=True)
+class CTFFlagsBaseSerializer(serializers.ModelSerializer):
+    ctf_question = CTFQuestionSerializer(read_only=True)
 
     class Meta:
-        model = models.FlagHints
-        fields = '__all__'
-
-    def create(self, validated_data):
-        request = self.context.get('request')
-        if request and request.user:
-            validated_data['creator'] = request.user
-        return super().create(validated_data)
+        model = models.CTFFlags
+        fields = ['ctf_question']
 
 
 class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
     team_answer = serializers.CharField(max_length=255, write_only=True)
-    team_id = serializers.IntegerField(write_only=True)
     escape_room_question_id = serializers.IntegerField(write_only=True)
 
     team = TeamSerializer(read_only=True)
-    escape_room_question = EscapeRoomQuestionListCreateSerializer(read_only=True)
+    escape_room_question = EscapeRoomQuestionForContestantsListSerializer(read_only=True)
 
     class Meta:
         model = models.TeamEscapeRoomQuestion
-        fields = ['team_answer', 'team', 'escape_room_question', 'escape_room_question_id', 'team_id']
+        fields = ['id', 'team_answer', 'team', 'escape_room_question', 'escape_room_question_id']
 
     def create(self, validated_data):
         team_answer = validated_data.pop('team_answer')
 
         escape_room_question_id = validated_data.get('escape_room_question_id')
-        team_id = validated_data.get('team_id')
-
+        request = self.context.get('request')
         with transaction.atomic():
             escape_room_question = models.EscapeRoomQuestion.objects.select_for_update().get(id=escape_room_question_id)
-            team = models.Team.objects.select_for_update().get(id=team_id)
+            try:
+                team = request.user.team
+            except models.Team.DoesNotExist:
+                raise exceptions.FlagIsDuplicate()
             flag = escape_room_question.flag
             correct_answers_count = models.TeamEscapeRoomQuestion.objects.select_for_update().filter(
                 escape_room_question=escape_room_question
@@ -147,5 +143,45 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
             team.coin += escape_room_question.coin
             team.save()
 
+            validated_data['team_id'] = team.id
+            instance = super().create(validated_data)
+            return instance
+
+
+class TeamCTFFlagSerializer(serializers.ModelSerializer):
+    team_answer = serializers.CharField(max_length=255, write_only=True)
+    flag_id = serializers.IntegerField(write_only=True)
+
+    team = TeamSerializer(read_only=True)
+    flag = CTFFlagsBaseSerializer(read_only=True)
+
+    class Meta:
+        model = models.TeamCTFFlag
+        fields = ['id', 'team_answer', 'team', 'flag_id', 'flag', ]
+
+    def create(self, validated_data):
+        team_answer = validated_data.pop('team_answer')
+
+        flag_id = validated_data.get('flag_id')
+        request = self.context.get('request')
+
+        with transaction.atomic():
+            ctf_flag = models.CTFFlags.objects.get(id=flag_id)
+            try:
+                team = request.user.team
+            except models.Team.DoesNotExist:
+                raise exceptions.FlagIsDuplicate()
+            flag = ctf_flag.flag
+
+            if (models.TeamCTFFlag.objects.filter
+                (team=team, flag=ctf_flag).exists()):
+                raise exceptions.FlagIsDuplicate()
+            elif team_answer != flag:
+                raise exceptions.FlagIsWrong()
+
+            team.score += ctf_flag.score
+            team.save()
+
+            validated_data['team_id'] = team.id
             instance = super().create(validated_data)
             return instance
