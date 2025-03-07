@@ -1,4 +1,4 @@
-from django.db import models
+from django.utils import timezone
 from core.models import *
 from . import consts
 
@@ -6,8 +6,8 @@ from . import consts
 class Team(models.Model):
     account = models.OneToOneField(CustomUser, on_delete=models.PROTECT, related_name="team")
     name = models.CharField(max_length=255, verbose_name="نام تیم")
-    score = models.IntegerField(verbose_name="امتیاز", null=True, blank=True)
-    coin = models.IntegerField(verbose_name="سکه", null=True, blank=True)
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    coin = models.IntegerField(verbose_name="سکه", default=0)
     status = models.CharField(max_length=50, choices=consts.TEAM_STATUS_CHOICES, default="signed_up")
 
     def __str__(self):
@@ -36,16 +36,19 @@ class EscapeRoomQuestion(models.Model):
 
     flag = models.CharField(max_length=255, verbose_name="پرچم")
     answer_limitation = models.IntegerField(verbose_name="محدودیت تعداد پاسخ ها")
-    score = models.IntegerField(verbose_name="امتیاز")
-    coin = models.IntegerField(verbose_name="سکه")
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    coin = models.IntegerField(verbose_name="سکه", default=0)
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="escape_room_questions")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
+
 
 class CTFQuestion(models.Model):
     name = models.CharField(max_length=255, verbose_name="نام", unique=True)
-    description = models.TextField(verbose_name="توضیحات")
+    description = models.TextField(verbose_name="توضیحات", null=True, blank=True)
     type = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TYPE_CHOICES,
                             default="file", verbose_name="نوع")
     topic = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TOPIC_CHOICES,
@@ -54,4 +57,39 @@ class CTFQuestion(models.Model):
     is_shown = models.BooleanField(default=True, verbose_name="قابل مشاهده")
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class CTFFlags(models.Model):
+    ctf_question = models.ForeignKey(CTFQuestion, on_delete=models.PROTECT, related_name="ctf_questions_flags")
+    flag = models.CharField(max_length=255, verbose_name="فلگ")
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    hint = models.TextField(verbose_name="راهنمایی")
+    coin = models.IntegerField(verbose_name="سکه", default=0)
+
+    creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_flags")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.flag
+
+
+class TeamEscapeRoomQuestion(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="escape_room_questions")
+    escape_room_question = models.ForeignKey(EscapeRoomQuestion, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TeamCTFFlag(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_ctf_flag")
+    flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="team_ctf_flags")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TeamCTFHint(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_ctf_hint")
+    hint = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="team_ctf_hints")
     created_at = models.DateTimeField(auto_now_add=True)

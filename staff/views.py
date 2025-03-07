@@ -2,9 +2,10 @@ from rest_framework import generics
 from rest_framework import permissions
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
+from django.contrib.auth import get_user_model
 from . import serializers
 from . import models
+from core.models import CustomUser
 
 
 class NotificationCreateAPIView(generics.CreateAPIView):
@@ -26,6 +27,16 @@ class NotificationCreateAPIView(generics.CreateAPIView):
         )
 
 
+class StaffListAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(is_staff=True)
+    serializer_class = serializers.CustomUserSerializer
+
+
+class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = get_user_model().objects.filter(is_staff=True)
+    serializer_class = serializers.CustomUserSerializer
+    permission_classes = [permissions.IsAdminUser]
+    
 class ClarificationListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.Clarification.objects.all()
     serializer_class = serializers.ClarificationSerializer
@@ -33,4 +44,3 @@ class ClarificationListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(questioner=self.request.user)
-
