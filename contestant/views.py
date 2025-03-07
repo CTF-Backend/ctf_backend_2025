@@ -1,5 +1,4 @@
 from rest_framework import generics, filters, status
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from contestant import serializers
@@ -23,7 +22,11 @@ class TeamListAPIView(generics.ListAPIView):
 class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Team.objects.all()
     serializer_class = serializers.TeamSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAdminUser()]
 
 
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
