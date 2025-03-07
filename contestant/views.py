@@ -1,5 +1,6 @@
-from rest_framework import generics, filters
+from rest_framework import generics, filters, status
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 
 from contestant import serializers
 from rest_framework import permissions
@@ -22,7 +23,7 @@ class TeamListAPIView(generics.ListAPIView):
 class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Team.objects.all()
     serializer_class = serializers.TeamSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -143,3 +144,30 @@ class FlagHintsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FlagHints.objects.all()
     serializer_class = serializers.FlagHintsSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class TeamEscapeRoomQuestionListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.TeamEscapeRoomQuestion.objects.all()
+    serializer_class = serializers.TeamEscapeRoomQuestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'team__name',
+        'escape_room_question__name',
+    ]
+
+    ordering_fields = [
+        'team__name',
+        'escape_room_question__name',
+        'created_at'
+    ]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        return Response({
+            "message": "پاسخ شما با موفقیت ثبت شد.",
+            "instance": self.get_serializer(instance).data
+        }, status=status.HTTP_201_CREATED)

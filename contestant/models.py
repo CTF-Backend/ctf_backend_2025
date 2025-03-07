@@ -1,4 +1,4 @@
-from django.db import models
+from django.utils import timezone
 from core.models import *
 from . import consts
 
@@ -6,8 +6,8 @@ from . import consts
 class Team(models.Model):
     account = models.OneToOneField(CustomUser, on_delete=models.PROTECT, related_name="team")
     name = models.CharField(max_length=255, verbose_name="نام تیم")
-    score = models.IntegerField(verbose_name="امتیاز", null=True, blank=True)
-    coin = models.IntegerField(verbose_name="سکه", null=True, blank=True)
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    coin = models.IntegerField(verbose_name="سکه", default=0)
     status = models.CharField(max_length=50, choices=consts.TEAM_STATUS_CHOICES, default="signed_up")
 
     def __str__(self):
@@ -36,11 +36,14 @@ class EscapeRoomQuestion(models.Model):
 
     flag = models.CharField(max_length=255, verbose_name="پرچم")
     answer_limitation = models.IntegerField(verbose_name="محدودیت تعداد پاسخ ها")
-    score = models.IntegerField(verbose_name="امتیاز")
-    coin = models.IntegerField(verbose_name="سکه")
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    coin = models.IntegerField(verbose_name="سکه", default=0)
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="escape_room_questions")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 
 class CTFQuestion(models.Model):
@@ -56,6 +59,9 @@ class CTFQuestion(models.Model):
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
+
 
 class CTFFlags(models.Model):
     ctf_question = models.ForeignKey(CTFQuestion, on_delete=models.PROTECT, related_name="ctf_questions_flags")
@@ -64,6 +70,9 @@ class CTFFlags(models.Model):
 
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="ctf_flags")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.flag
 
 
 class FlagHints(models.Model):
@@ -74,12 +83,24 @@ class FlagHints(models.Model):
     creator = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name="flag_hints")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.hint
+
 
 class TeamEscapeRoomQuestion(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="escape_room_questions")
     escape_room_question = models.ForeignKey(EscapeRoomQuestion, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class TeamCTFFlags(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="ctf_flags")
     flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TeamFlagHints(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_flag_hints")
+    hint = models.ForeignKey(FlagHints, on_delete=models.PROTECT, related_name="team_flag_hints")
+    created_at = models.DateTimeField(auto_now_add=True)
+
