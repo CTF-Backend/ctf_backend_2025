@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from core.serializers import CustomUserSerializer
 from . import serializers
 from . import models
-
+from core.models import CustomUser
 
 class NotificationCreateAPIView(generics.CreateAPIView):
     queryset = models.Notification.objects.all()
@@ -25,6 +25,10 @@ class NotificationCreateAPIView(generics.CreateAPIView):
                 "notification_type": notification.type,
             }
         )
+
+class StaffListView(generics.ListAPIView):
+    queryset=CustomUser.objects.filter(is_staff=True)
+    serializer_class = CustomUserSerializer
 
 
 class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
