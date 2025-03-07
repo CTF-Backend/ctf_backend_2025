@@ -19,4 +19,21 @@ urlpatterns = [
     path('escape-room-questions/contestans/', views.EscapeRoomQuestionForContestantsListAPIView.as_view(),
          name='escape-room-question-for-contestants'),
 
+    path('ctf-questions/', views.CTFQuestionListCreateAPIView.as_view(),
+         name='ctf-question'),
+    path('ctf-questions/<int:pk>/', views.CTFQuestionDetailAPIView.as_view(),
+         name='ctf-question-detail'),
+
+    path('ctf-flags/', views.CTFFlagsListCreateAPIView.as_view(),
+         name='ctf-flag'),
+    path('ctf-flags/<int:pk>/', views.CTFFlagsDetailAPIView.as_view(),
+         name='ctf-flags-detail'),
+
+    path('team-escape-room/', views.TeamEscapeRoomQuestionListCreateAPIView.as_view(),
+         name='team-escape-room'),
+    path('team-ctf-flag/', views.TeamCTFFlagListCreateAPIView.as_view(),
+         name='team-ctf-flag'),
+    path('team-ctf-hint/', views.TeamCTFHintListCreateAPIView.as_view(),
+         name='team-ctf-hint'),
+
 ]
