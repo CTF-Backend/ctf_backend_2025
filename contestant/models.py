@@ -84,7 +84,12 @@ class TeamEscapeRoomQuestion(models.Model):
 
 
 class TeamCTFFlag(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_flag")
-    flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="team_flags")
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_ctf_flag")
+    flag = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="team_ctf_flags")
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+class TeamCTFHint(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_ctf_hint")
+    hint = models.ForeignKey(CTFFlags, on_delete=models.PROTECT, related_name="team_ctf_hints")
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -102,7 +102,7 @@ class CTFFlagsBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CTFFlags
-        fields = ['ctf_question']
+        fields = ['id', 'ctf_question', 'score', 'coin']
 
 
 class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
@@ -126,7 +126,7 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
             try:
                 team = request.user.team
             except models.Team.DoesNotExist:
-                raise exceptions.FlagIsDuplicate()
+                raise exceptions.UserDoesNotHaveTeam()
             flag = escape_room_question.flag
             correct_answers_count = models.TeamEscapeRoomQuestion.objects.select_for_update().filter(
                 escape_room_question=escape_room_question
@@ -170,7 +170,7 @@ class TeamCTFFlagSerializer(serializers.ModelSerializer):
             try:
                 team = request.user.team
             except models.Team.DoesNotExist:
-                raise exceptions.FlagIsDuplicate()
+                raise exceptions.UserDoesNotHaveTeam()
             flag = ctf_flag.flag
 
             if (models.TeamCTFFlag.objects.filter
@@ -180,6 +180,39 @@ class TeamCTFFlagSerializer(serializers.ModelSerializer):
                 raise exceptions.FlagIsWrong()
 
             team.score += ctf_flag.score
+            team.save()
+
+            validated_data['team_id'] = team.id
+            instance = super().create(validated_data)
+            return instance
+
+
+class TeamCTFHintSerializer(serializers.ModelSerializer):
+    hint_id = serializers.IntegerField(write_only=True)
+    team = TeamSerializer(read_only=True)
+
+    class Meta:
+        model = models.TeamCTFHint
+        fields = ['id', 'team', 'hint_id', ]
+
+    def create(self, validated_data):
+        ctf_flag_hint_id = validated_data.get('hint_id')
+        request = self.context.get('request')
+
+        with transaction.atomic():
+            ctf_flag_hint = models.CTFFlags.objects.get(id=ctf_flag_hint_id)
+            try:
+                team = request.user.team
+            except models.Team.DoesNotExist:
+                raise exceptions.UserDoesNotHaveTeam()
+
+            existing_hint = models.TeamCTFHint.objects.filter(team=team, hint=ctf_flag_hint).first()
+            if existing_hint:
+                return existing_hint
+            elif team.coin < ctf_flag_hint.coin:
+                raise exceptions.CoinIsNotEnough()
+
+            team.coin -= ctf_flag_hint.coin
             team.save()
 
             validated_data['team_id'] = team.id

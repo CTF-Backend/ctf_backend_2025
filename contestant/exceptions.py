@@ -26,6 +26,16 @@ class FlagIsDuplicate(AppException):
     message_en = 'You have already answered this question before.'
 
 
+class HintAlreadyReceived(AppException):
+    message = 'شما راهنمایی این فلگ را دریافت کرده اید.'
+    message_en = 'You have received the hint for this flag.'
+
+
+class CoinIsNotEnough(AppException):
+    message = 'سکه های شما برای خرید این راهنمایی کافی نمیباشد.'
+    message_en = 'Your coins are not enough to purchase this hint.'
+
+
 class UserDoesNotHaveTeam(AppException):
     message = 'کاربر وارد شده دارای تیم نمیباشد.'
     message_en = 'User does not have team.'

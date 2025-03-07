@@ -120,6 +120,7 @@ class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
             return models.CTFQuestion.objects.all()
         return models.CTFQuestion.objects.filter(is_shown=True)
 
+
 class CTFQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.CTFQuestion.objects.all()
     serializer_class = serializers.CTFQuestionSerializer
@@ -187,13 +188,12 @@ class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
         'team__name',
-        'escape_room_question__name',
+        'flag__flag',
     ]
 
     ordering_fields = [
         'team__name',
-        'escape_room_question__name',
-        'created_at'
+        'flag__flag'
     ]
 
     def create(self, request, *args, **kwargs):
@@ -204,4 +204,30 @@ class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
         return Response({
             "message": "پاسخ شما با موفقیت ثبت شد.",
             "instance": self.get_serializer(instance).data
+        }, status=status.HTTP_201_CREATED)
+
+
+class TeamCTFHintListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.TeamCTFHint.objects.all()
+    serializer_class = serializers.TeamCTFHintSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'team__name',
+        'hint__hint',
+    ]
+
+    ordering_fields = [
+        'team__name',
+        'hint__hint'
+    ]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        hint_text = instance.hint.hint
+
+        return Response({
+            "hint": hint_text
         }, status=status.HTTP_201_CREATED)
