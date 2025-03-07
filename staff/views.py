@@ -27,7 +27,7 @@ class NotificationCreateAPIView(generics.CreateAPIView):
         )
 
 
-class StaffUserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.filter(is_staff=True)
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAdminUser]
