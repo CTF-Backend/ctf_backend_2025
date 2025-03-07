@@ -27,7 +27,6 @@ class NotificationCreateAPIView(generics.CreateAPIView):
         )
 
 
-
 class StaffListAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_staff=True)
     serializer_class = serializers.CustomUserSerializer
@@ -44,4 +43,8 @@ class ClarificationListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = serializers.ClarificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class ClarificationDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Clarification.objects.all()
+    serializer_class = serializers.ClarificationSerializer
+    permission_classes = [permissions.IsAdminUser]

@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import CustomUser
+from contestant import models as contestant_models
 from . import consts
 
 
@@ -16,10 +17,10 @@ class Notification(models.Model):
 
 class Clarification(models.Model):
     question = models.TextField(verbose_name="سوال")
-    answer = models.TextField(verbose_name="پاسخ")
+    answer = models.TextField(verbose_name="پاسخ", null=True, blank=True)
 
-    questioner = models.ForeignKey(CustomUser, on_delete=models.PROTECT,
-                                   verbose_name="سوال کننده", related_name="questioner")
+    questioner = models.ForeignKey(contestant_models.Team, on_delete=models.PROTECT,
+                                   verbose_name="سوال کننده", related_name="questioner", null=True)
     responder = models.ForeignKey(CustomUser, on_delete=models.PROTECT,
-                                  verbose_name="پاسخ دهنده", related_name="responder")
+                                  verbose_name="پاسخ دهنده", related_name="responder", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
