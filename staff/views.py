@@ -8,6 +8,7 @@ from . import serializers
 from . import models
 from core.models import CustomUser
 
+
 class NotificationCreateAPIView(generics.CreateAPIView):
     queryset = models.Notification.objects.all()
     serializer_class = serializers.NotificationSerializer
@@ -26,8 +27,9 @@ class NotificationCreateAPIView(generics.CreateAPIView):
             }
         )
 
-class StaffListView(generics.ListAPIView):
-    queryset=CustomUser.objects.filter(is_staff=True)
+
+class StaffListAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(is_staff=True)
     serializer_class = CustomUserSerializer
 
 
