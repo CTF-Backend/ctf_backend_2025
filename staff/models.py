@@ -22,5 +22,4 @@ class Clarification(models.Model):
                                    verbose_name="سوال کننده", related_name="questioner")
     responder = models.ForeignKey(CustomUser, on_delete=models.PROTECT,
                                   verbose_name="پاسخ دهنده", related_name="responder")
-
     created_at = models.DateTimeField(auto_now_add=True)
