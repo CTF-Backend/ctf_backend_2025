@@ -1,5 +1,6 @@
 from django.urls import path
 from contestant import views
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('teams/', views.TeamListAPIView.as_view(),
@@ -36,4 +37,6 @@ urlpatterns = [
     path('team-ctf-hint/', views.TeamCTFHintListCreateAPIView.as_view(),
          name='team-ctf-hint'),
 
+    path('team-escape-room-report/', views.TeamEscapeRoomQuestionReport.as_view(),
+         name='team-escape-room-report'),
 ]

@@ -105,6 +105,15 @@ class CTFFlagsBaseSerializer(serializers.ModelSerializer):
         fields = ['id', 'ctf_question', 'score', 'coin']
 
 
+class TeamEscapeRoomQuestionReportSerializer(serializers.ModelSerializer):
+    team = TeamSerializer(read_only=True)
+    escape_room_question = EscapeRoomQuestionListCreateSerializer(read_only=True)
+
+    class Meta:
+        model = models.TeamEscapeRoomQuestion
+        fields = ['id', 'team', 'escape_room_question', 'created_at']
+
+
 class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
     team_answer = serializers.CharField(max_length=255, write_only=True)
     escape_room_question_id = serializers.IntegerField(write_only=True)
