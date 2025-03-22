@@ -353,6 +353,159 @@ class TeamEscapeRoomQuestionReport(APIView):
         return any('\u0600' <= char <= '\u06FF' for char in text)
 
 
+class TeamCTFFlagReport(APIView):
+    def get(self, request, output_format=None):
+        export_format = request.GET.get("output_format", "json")
+        queryset = models.TeamCTFFlag.objects.all().order_by("-created_at")
+        serializer = serializers.TeamCTFFlagSerializer(queryset, many=True)
+
+        tehran_tz = timezone("Asia/Tehran")
+
+        data = [
+            {
+                "id": item["id"],
+                "team_name": item["team"]["name"],  # Team's name
+                "flag_name": item["flag"]["flag"],  # The flag's name (from flag field)
+                "ctf_question_name": item["flag"]["ctf_question"]["name"],  # The CTF question's name
+                "created_at": self.convert_to_tehran_time(item["created_at"], tehran_tz),
+            }
+            for item in serializer.data
+        ]
+
+        if export_format == "excel":
+            return self.export_to_excel(data)
+        elif export_format == "pdf":
+            return self.export_to_pdf(data)
+        else:
+            return Response(data, status=status.HTTP_200_OK)
+
+    def convert_to_tehran_time(self, created_at, tehran_tz):
+        """
+        Converts a datetime object to Tehran time (HH:MM:SS) format.
+        Handles both naive and timezone-aware datetime objects.
+        """
+        if isinstance(created_at, str):
+            created_at = datetime.strptime(created_at[:-1], "%Y-%m-%dT%H:%M:%S.%f")
+            created_at = created_at.replace(tzinfo=UTC)
+
+        if created_at.tzinfo is None:
+            created_at = tehran_tz.localize(created_at)
+        else:
+            created_at = created_at.astimezone(tehran_tz)
+
+        return created_at.strftime("%H:%M:%S")
+
+    def export_to_excel(self, data):
+        df = pd.DataFrame(data)
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine="xlsxwriter")
+        df.to_excel(writer, sheet_name="CTF Flags", index=False)
+
+        workbook = writer.book
+        worksheet = writer.sheets["CTF Flags"]
+        worksheet.set_column("A:D", 20, None, {"font": "Arial Unicode MS"})
+        writer.close()
+        output.seek(0)
+
+        response = HttpResponse(output,
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="team_ctf_flags.xlsx"'
+        return response
+
+    def export_to_pdf(self, data):
+        output = BytesIO()
+        doc = SimpleDocTemplate(output, pagesize=letter)
+        elements = []
+
+        pdfmetrics.registerFont(TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+
+        title_style = ParagraphStyle(
+            "TitleStyle",
+            fontName="BahijNazanin",
+            fontSize=16,
+            spaceAfter=10,
+            alignment=1
+        )
+
+        header_style = ParagraphStyle(
+            "HeaderStyle",
+            fontName="BahijNazanin",
+            fontSize=14,
+            spaceAfter=5,
+            alignment=1
+        )
+
+        cell_style = ParagraphStyle(
+            "CellStyle",
+            fontName="BahijNazanin",
+            fontSize=12,
+            spaceAfter=5,
+            alignment=1
+        )
+
+        title = Paragraph("CTF Flags Report", title_style)
+        elements.append(title)
+
+        table_data = [[
+            Paragraph("ID", header_style),
+            Paragraph("Team Name", header_style),
+            Paragraph("Flag", header_style),
+            Paragraph("CTF Question", header_style),
+            Paragraph("Time (Tehran)", header_style)
+        ]]
+
+        for item in data:
+            team_name = self.fix_persian_text(item["team_name"])
+            flag_name = self.fix_persian_text(item["flag_name"])
+            ctf_question_name = self.fix_persian_text(item["ctf_question_name"])
+            created_at = item["created_at"]
+
+            table_data.append([
+                Paragraph(str(item["id"]), cell_style),
+                Paragraph(team_name, cell_style),
+                Paragraph(flag_name, cell_style),
+                Paragraph(ctf_question_name, cell_style),
+                Paragraph(created_at, cell_style),
+            ])
+
+        table = Table(table_data, colWidths=[50, 150, 150, 150, 100])
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.darkgreen),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("FONTNAME", (0, 0), (-1, -1), "BahijNazanin"),
+            ("FONTSIZE", (0, 0), (-1, 0), 14),
+            ("FONTSIZE", (0, 1), (-1, -1), 12),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+            ("BACKGROUND", (0, 1), (-1, -1), colors.lightgreen),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+        ]))
+
+        elements.append(table)
+        doc.build(elements)
+
+        output.seek(0)
+        response = HttpResponse(output, content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="team_ctf_flags.pdf"'
+        return response
+
+    def fix_persian_text(self, text):
+        """
+        Fix Persian text by reshaping it and handling RTL/LTR issues.
+        """
+        if self.is_persian(text):
+            reshaped_text = arabic_reshaper.reshape(text)
+            return get_display(reshaped_text)
+        return text
+
+    def is_persian(self, text):
+        """
+        Checks if the provided text contains Persian characters.
+        """
+        return any('\u0600' <= char <= '\u06FF' for char in text)
+
+
 class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.TeamCTFFlag.objects.all()
     serializer_class = serializers.TeamCTFFlagSerializer
@@ -377,6 +530,11 @@ class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
             "message": "پاسخ شما با موفقیت ثبت شد.",
             "instance": self.get_serializer(instance).data
         }, status=status.HTTP_201_CREATED)
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAdminUser()]
+        return [permissions.IsAuthenticated()]
 
 
 class TeamCTFHintListCreateAPIView(generics.ListCreateAPIView):

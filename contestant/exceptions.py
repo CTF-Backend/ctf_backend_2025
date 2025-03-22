@@ -23,7 +23,7 @@ class FlagIsWrong(AppException):
 
 class FlagIsDuplicate(AppException):
     message = 'شما قبلا به این سوال پاسخ داده اید.'
-    message_en = 'You have already answered this question before.'
+    message_en = 'You have already answered this question.'
 
 
 class HintAlreadyReceived(AppException):

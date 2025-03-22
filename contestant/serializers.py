@@ -162,11 +162,12 @@ class TeamCTFFlagSerializer(serializers.ModelSerializer):
     flag_id = serializers.IntegerField(write_only=True)
 
     team = TeamSerializer(read_only=True)
-    flag = CTFFlagsBaseSerializer(read_only=True)
+    flag = CTFFlagsSerializer(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = models.TeamCTFFlag
-        fields = ['id', 'team_answer', 'team', 'flag_id', 'flag', ]
+        fields = ['id', 'team_answer', 'team', 'flag_id', 'flag', 'created_at']
 
     def create(self, validated_data):
         team_answer = validated_data.pop('team_answer')
