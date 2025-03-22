@@ -41,4 +41,6 @@ urlpatterns = [
          name='team-escape-room-report'),
     path('team-ctf-flag-report/', views.TeamCTFFlagReport.as_view(),
          name='team-ctf-flag-report'),
+    path('teams-report/', views.TeamsReport.as_view(),
+         name='teams-report'),
 ]

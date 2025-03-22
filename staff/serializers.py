@@ -11,7 +11,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class CustomStaffUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = "__all__"
@@ -19,7 +19,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class ClarificationSerializer(serializers.ModelSerializer):
     questioner = contestant_serializers.TeamSerializer(read_only=True)
-    responder = CustomUserSerializer(read_only=True)
+    responder = CustomStaffUserSerializer(read_only=True)
 
     class Meta:
         model = models.Clarification

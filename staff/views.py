@@ -29,12 +29,12 @@ class NotificationCreateAPIView(generics.CreateAPIView):
 
 class StaffListAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_staff=True)
-    serializer_class = serializers.CustomUserSerializer
+    serializer_class = serializers.CustomStaffUserSerializer
 
 
 class StaffDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.filter(is_staff=True)
-    serializer_class = serializers.CustomUserSerializer
+    serializer_class = serializers.CustomStaffUserSerializer
     permission_classes = [permissions.IsAdminUser]
 
 

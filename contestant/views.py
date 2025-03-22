@@ -506,6 +506,97 @@ class TeamCTFFlagReport(APIView):
         return any('\u0600' <= char <= '\u06FF' for char in text)
 
 
+class TeamsReport(APIView):
+    def get(self, request, output_format=None):
+        export_format = request.GET.get("output_format", "json")
+        queryset = models.Team.objects.all().order_by("-score")
+        serializer = serializers.TeamSerializer(queryset, many=True)
+
+        data = serializer.data
+
+        if export_format == "excel":
+            return self.export_to_excel(data)
+        elif export_format == "pdf":
+            return self.export_to_pdf(data)
+        else:
+            return Response(data, status=status.HTTP_200_OK)
+
+    def export_to_excel(self, data):
+        df = pd.DataFrame(data)
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine="xlsxwriter")
+        df.to_excel(writer, sheet_name="Teams", index=False)
+
+        workbook = writer.book
+        worksheet = writer.sheets["Teams"]
+        worksheet.set_column("A:D", 20, None, {"font": "Arial Unicode MS"})
+        writer.close()
+        output.seek(0)
+
+        response = HttpResponse(output,
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="teams.xlsx"'
+        return response
+
+    def export_to_pdf(self, data):
+        output = BytesIO()
+        doc = SimpleDocTemplate(output, pagesize=letter)
+        elements = []
+
+        pdfmetrics.registerFont(TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+
+        title_style = ParagraphStyle("TitleStyle", fontName="BahijNazanin", fontSize=16, spaceAfter=10, alignment=1)
+        header_style = ParagraphStyle("HeaderStyle", fontName="BahijNazanin", fontSize=14, spaceAfter=5, alignment=1)
+        cell_style = ParagraphStyle("CellStyle", fontName="BahijNazanin", fontSize=12, spaceAfter=5, alignment=1)
+
+        title = Paragraph("Teams Report", title_style)
+        elements.append(title)
+
+        table_data = [
+            [Paragraph("ID", header_style), Paragraph("Team Name", header_style), Paragraph("Score", header_style),
+             Paragraph("Coins", header_style), Paragraph("Status", header_style)]]
+
+        for item in data:
+            table_data.append([
+                Paragraph(str(item["id"]), cell_style),
+                Paragraph(self.fix_persian_text(item["name"]), cell_style),
+                Paragraph(str(item["score"]), cell_style),
+                Paragraph(str(item["coin"]), cell_style),
+                Paragraph(item["status"], cell_style),
+            ])
+
+        table = Table(table_data, colWidths=[50, 150, 100, 100, 100])
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.darkgreen),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("FONTNAME", (0, 0), (-1, -1), "BahijNazanin"),
+            ("FONTSIZE", (0, 0), (-1, 0), 14),
+            ("FONTSIZE", (0, 1), (-1, -1), 12),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+            ("BACKGROUND", (0, 1), (-1, -1), colors.lightgreen),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+        ]))
+
+        elements.append(table)
+        doc.build(elements)
+
+        output.seek(0)
+        response = HttpResponse(output, content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="teams.pdf"'
+        return response
+
+    def fix_persian_text(self, text):
+        if self.is_persian(text):
+            reshaped_text = arabic_reshaper.reshape(text)
+            return get_display(reshaped_text)
+        return text
+
+    def is_persian(self, text):
+        return any('\u0600' <= char <= '\u06FF' for char in text)
+
+
 class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.TeamCTFFlag.objects.all()
     serializer_class = serializers.TeamCTFFlagSerializer
