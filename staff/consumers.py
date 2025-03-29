@@ -39,20 +39,18 @@ class TeamConsumer(ListModelMixin, GenericAsyncAPIConsumer):
         await super().connect()
 
     async def receive_json(self, content, **kwargs):
-        """Handle WebSocket messages."""
         action = content.get("action")
         if action == "list":
             await self.send_team_list()
 
     async def send_team_list(self):
-        """Send the ordered list of teams asynchronously."""
-        teams = await sync_to_async(list)(self.get_queryset())  # Convert to list in a thread
+        teams = await sync_to_async(list)(self.get_queryset())
         serialized_data = TeamSerializer(teams, many=True).data
         await self.send_json({"teams": serialized_data})
 
     @model_observer(Team)
     async def model_change(self, message, observer=None, **kwargs):
-        await self.send_team_list()  # Send updated leaderboard when a team changes
+        await self.send_team_list()
 
     @model_change.serializer
     def model_serialize(self, instance, action, **kwargs):
