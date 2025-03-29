@@ -23,7 +23,7 @@ class ClarificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Clarification
-        fields = ['id', 'question', 'answer', 'questioner', 'responder']
+        fields = ['id', 'contest_question', 'contest_question_type', 'question', 'answer', 'questioner', 'responder']
 
     def create(self, validated_data):
         request = self.context.get('request')

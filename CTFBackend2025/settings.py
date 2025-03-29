@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +51,17 @@ INSTALLED_APPS = [
     'drf_yasg',
     'channels',
 ]
+REDIS_HOST = env('REDIS_HOST')
+REDIS_PORT = env('REDIS_PORT')
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -68,7 +80,7 @@ ROOT_URLCONF = 'CTFBackend2025.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,7 +93,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'CTFBackend2025.wsgi.application'
+ASGI_APPLICATION = 'CTFBackend2025.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -122,8 +134,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
-REST_AUTH_SERIALIZERS = {
+REST_AUTH = {
     'LOGIN_SERIALIZER': 'core.serializers.CustomLoginSerializer',
+    'USE_JWT': True,
 }
 
 # Internationalization
@@ -151,3 +164,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_HEADERS = True
 
 AUTH_USER_MODEL = 'core.CustomUser'
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+# ]

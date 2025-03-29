@@ -1,30 +1,21 @@
+from django.contrib.auth import get_user_model
+from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import permissions
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
-from django.contrib.auth import get_user_model
-from . import serializers
-from . import models
+
 from core.models import CustomUser
+from . import models
+from . import serializers
 
 
-class NotificationCreateAPIView(generics.CreateAPIView):
+class NotificationListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.Notification.objects.all()
     serializer_class = serializers.NotificationSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        notification = serializer.save()
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "notifications",
-            {
-                "type": "send_notification",
-                "title": notification.title,
-                "description": notification.description,
-                "notification_type": notification.type,
-            }
-        )
+
+def index(request):
+    return render(request, "staff/index.html")
 
 
 class StaffListAPIView(generics.ListAPIView):

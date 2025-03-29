@@ -1,18 +1,25 @@
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from djangochannelsrestframework import permissions
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.mixins import ListModelMixin
+from djangochannelsrestframework.observer import model_observer
+
+from staff.models import Notification
+from staff.serializers import NotificationSerializer
 
 
-class NotificationConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.channel_layer.group_add("notifications", self.channel_name)
-        await self.accept()
+class NotificationConsumer(ListModelMixin, GenericAsyncAPIConsumer):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permissions = (permissions.IsAuthenticated,)
 
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard("notifications", self.channel_name)
+    async def connect(self, **kwargs):
+        await self.model_change.subscribe()
+        await super().connect()
 
-    async def send_notification(self, event):
-        await self.send(text_data=json.dumps({
-            "title": event["title"],
-            "description": event["description"],
-            "type": event["notification_type"],
-        }))
+    @model_observer(Notification)
+    async def model_change(self, message, observer=None, **kwargs):
+        await self.send_json(message)
+
+    @model_change.serializer
+    def model_serialize(self, instance, action, **kwargs):
+        return dict(data=NotificationSerializer(instance).data, action=action.value)

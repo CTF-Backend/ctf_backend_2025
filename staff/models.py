@@ -16,6 +16,9 @@ class Notification(models.Model):
 
 
 class Clarification(models.Model):
+    contest_question = models.CharField(max_length=255, blank=False, null=False, verbose_name="عنوان سوال")
+    contest_question_type = models.CharField(max_length=20, choices=consts.QUESTION_TYPE,
+                                             default="ctf", verbose_name="نوع سوال")
     question = models.TextField(verbose_name="سوال")
     answer = models.TextField(verbose_name="پاسخ", null=True, blank=True)
 
