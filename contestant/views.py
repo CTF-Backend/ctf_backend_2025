@@ -24,6 +24,7 @@ from .models import TeamEscapeRoomQuestion
 from .serializers import TeamEscapeRoomQuestionReportSerializer
 import os
 from django.conf import settings
+from django.shortcuts import render
 
 font_path = os.path.join(settings.BASE_DIR, "uploads", "bahij-nazanin.ttf")
 pdfmetrics.registerFont(TTFont("BahijNazanin", font_path))
@@ -74,6 +75,10 @@ class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
         'student_number',
         'email',
     ]
+
+
+def leaderboard(request):
+    return render(request, "staff/teams.html")
 
 
 class TeamMemberDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

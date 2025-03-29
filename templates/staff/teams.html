@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <title>Real-Time Team Leaderboard</title>
+  </head>
+  <body>
+    <div id="app" class="row mt-5">
+      <div class="col-1"></div>
+      <div class="col-10">
+        <div class="card">
+          <p class="card-header">Real-Time Team Leaderboard</p>
+          <div class="card-body">
+            <table class="table align-middle mb-0 bg-white">
+              <thead class="bg-light">
+                <tr>
+                  <th>#</th>
+                  <th>Team Name</th>
+                  <th>Score</th>
+                  <th>Coins</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(team, index) in teams" :key="team.id">
+                  <td>[[ index + 1 ]]</td>
+                  <td>[[ team.name ]]</td>
+                  <td><strong>[[ team.score ]]</strong></td>
+                  <td>[[ team.coin ]]</td>
+                  <td>
+                    <span
+                      class="badge rounded-pill d-inline"
+                      :class="{
+                        'bg-success': team.status === 'active',
+                        'bg-warning': team.status === 'pending',
+                        'bg-danger': team.status === 'banned'
+                      }"
+                    >
+                      [[ team.status ]]
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script>
+      vueApp = new Vue({
+        el: "#app",
+        delimiters: ["[[", "]]"],
+        data() {
+          return {
+            teams: [],
+          };
+        },
+      });
+
+var ws = new WebSocket("ws://localhost:8000/ws/teams/");
+
+ws.onopen = function () {
+  ws.send(
+    JSON.stringify({
+      action: "list", // Request team list on connection
+      request_id: new Date().getTime(),
+    })
+  );
+};
+
+ws.onmessage = function (e) {
+  let allData = JSON.parse(e.data);
+  if (allData.teams) {
+    vueApp.teams = allData.teams; // Update leaderboard
+  }
+};
+    </script>
+  </body>
+</html>
