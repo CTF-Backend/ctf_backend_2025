@@ -21,6 +21,7 @@ def index(request):
 class StaffListAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(is_staff=True)
     serializer_class = serializers.CustomStaffUserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
 class StaffDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -7,4 +7,5 @@ urlpatterns = [
     path('auth/signup/staff/', views.StaffSignUpAPIView.as_view(), name='staff_signup'),
     path('auth/login/', views.CustomLoginView.as_view(), name='custom_login'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('users/<int:pk>/', views.CustomUserDetailView.as_view(), name='users_detail'),
 ]

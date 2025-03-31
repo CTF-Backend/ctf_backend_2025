@@ -4,7 +4,10 @@ from rest_framework.exceptions import APIException
 from rest_framework import status
 import logging
 
+from utils.apps_exceptions import AppException
+
 logger = logging.getLogger(__name__)
+
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
