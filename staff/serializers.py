@@ -12,9 +12,23 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class CustomStaffUserSerializer(serializers.ModelSerializer):
+    team = contestant_serializers.TeamSerializer(read_only=True, required=False)
+
     class Meta:
         model = CustomUser
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        user = CustomUser.objects.get(id=data['id'])
+
+        try:
+            data["team"] = contestant_serializers.TeamSerializer(user.team).data
+        except:
+            data["team"] = None
+
+        return data
+
 
 
 class ClarificationSerializer(serializers.ModelSerializer):
