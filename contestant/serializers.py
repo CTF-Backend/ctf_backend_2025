@@ -14,16 +14,26 @@ class TeamSerializer(serializers.ModelSerializer):
 class TeamMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TeamMember
-        fields = '__all__'
+        exclude = ('team',)
 
     def create(self, validated_data):
-        team = validated_data.get("team")
+        request = self.context.get('request')
+        try:
+            team = request.user.team
+        except models.Team.DoesNotExist:
+            raise exceptions.UserDoesNotHaveTeam()
+        validated_data['team'] = team
         if models.TeamMember.objects.filter(team=team).count() >= 3:
             raise exceptions.MaxTeamMember()
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        team = validated_data.get("team")
+        request = self.context.get('request')
+        try:
+            team = request.user.team
+        except models.Team.DoesNotExist:
+            raise exceptions.UserDoesNotHaveTeam()
+        validated_data['team'] = team
         if team.status not in ['signed_up', 'solved_riddle']:
             raise exceptions.EditTeamMemberIsNotAllowed()
         return super().update(instance, validated_data)
