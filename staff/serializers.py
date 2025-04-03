@@ -30,7 +30,6 @@ class CustomStaffUserSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class ClarificationSerializer(serializers.ModelSerializer):
     questioner = contestant_serializers.TeamSerializer(read_only=True)
     responder = CustomStaffUserSerializer(read_only=True)
