@@ -8,4 +8,6 @@ urlpatterns = [
     path('auth/login/', views.CustomLoginView.as_view(), name='custom_login'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('users/<int:pk>/', views.CustomUserDetailView.as_view(), name='users_detail'),
+    path('request/', views.send_request, name='request'),
+    path('verify/', views.verify, name='verify'),
 ]

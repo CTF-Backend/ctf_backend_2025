@@ -174,3 +174,21 @@ AUTH_USER_MODEL = 'core.CustomUser'
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:8000",
 # ]
+
+SANDBOX = env('SANDBOX', default=True, cast=bool)
+MERCHANT = env('MERCHANT')
+if SANDBOX:
+    sandbox = 'sandbox'
+else:
+    sandbox = 'www'
+
+
+ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentRequest.json"
+ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
+ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
+
+AMOUNT = env('AMOUNT', default=0, cast=int)  # Rial / Required
+CALLBACK_URL = env('CALLBACK_URL')
+DESCRIPTION = env(
+    'DESCRIPTION', default="توضیحات مربوط به تراکنش را در این قسمت وارد کنید")  # Required
+REDIRECT_PATH = env('REDIRECT_PATH')
