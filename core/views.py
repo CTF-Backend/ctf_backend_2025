@@ -13,6 +13,8 @@ from rest_framework import status
 from django.conf import settings
 import requests
 import json
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class TeamSignUpAPIView(generics.CreateAPIView):
@@ -35,6 +37,22 @@ class CustomUserDetailView(generics.RetrieveAPIView):
 class Pay(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_summary="Initiate Zarinpal Payment",
+        responses={
+            200: openapi.Response(
+                description="Payment initiated successfully",
+                examples={
+                    "application/json": {
+                        "status": True,
+                        "url": "https://zarinpal.com/startpay/<authority>",
+                        "authority": "<authority>"
+                    }
+                }
+            ),
+            400: "Bad Request"
+        }
+    )
     def get(self, request):
         data = {
             "merchant_id": settings.MERCHANT,
@@ -66,6 +84,7 @@ class Pay(APIView):
 
 
 class Vrify(APIView):
+
     def get(self, request):
         authority = request.GET.get('Authority', '')
         data = {
