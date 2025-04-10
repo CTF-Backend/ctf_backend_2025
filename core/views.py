@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework import status
 from django.conf import settings
 import requests
@@ -36,10 +37,10 @@ class Pay(APIView):
 
     def get(self, request):
         data = {
-            "MerchantID": settings.MERCHANT,
-            "Amount": settings.AMOUNT,
-            "Description": settings.DESCRIPTION,
-            "CallbackURL": settings.CALLBACK_URL,
+            "merchant_id": settings.MERCHANT,
+            "amount": settings.AMOUNT,
+            "description": settings.DESCRIPTION,
+            "callback_url": settings.CALLBACK_URL,
         }
         data = json.dumps(data)
         headers = {'content-type': 'application/json',
@@ -47,7 +48,6 @@ class Pay(APIView):
         try:
             response = requests.post(
                 settings.ZP_API_REQUEST, data=data, headers=headers, timeout=10)
-
             if response.status_code == 200:
                 response = response.json()
                 if response['Status'] == 100:
@@ -57,7 +57,7 @@ class Pay(APIView):
                     return Response({'status': True, 'url': settings.ZP_API_STARTPAY + str(authority), 'authority': authority})
                 else:
                     return Response({'status': False, 'code': str(response['Status'])}, status=status.HTTP_400_BAD_REQUEST)
-            return response
+            return HttpResponse(response)
 
         except requests.exceptions.Timeout:
             return Response({'status': False, 'code': 'timeout'}, status=status.HTTP_400_BAD_REQUEST)
