@@ -130,7 +130,8 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception_handler.custom_exception_handler',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.TokenAuthentication',
@@ -141,9 +142,9 @@ REST_FRAMEWORK = {
 }
 REST_AUTH = {
     'LOGIN_SERIALIZER': 'core.serializers.CustomLoginSerializer',
-    'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'ctf-app-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'ctf-refresh-token',
+    # 'USE_JWT': True,
+    # 'JWT_AUTH_COOKIE': 'ctf-app-auth',
+    # 'JWT_AUTH_REFRESH_COOKIE': 'ctf-refresh-token',
 }
 
 # Internationalization
