@@ -20,7 +20,7 @@ class CustomLoginView(LoginView):
 
     def get_response(self):
         original_response = super().get_response()
-        user = self.user  # Set by LoginView after successful validation
+        user = self.user
         data = original_response.data
         data['user_id'] = user.id
         return Response(data)
