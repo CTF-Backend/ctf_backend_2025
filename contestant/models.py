@@ -80,6 +80,8 @@ class CTFFlags(models.Model):
 class TeamEscapeRoomQuestion(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="escape_room_questions")
     escape_room_question = models.ForeignKey(EscapeRoomQuestion, on_delete=models.PROTECT)
+    score = models.IntegerField(verbose_name="امتیاز", default=0)
+    coin = models.IntegerField(verbose_name="سکه", default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

@@ -158,13 +158,46 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
             elif team_answer != flag:
                 raise exceptions.FlagIsWrong()
 
-            team.score += escape_room_question.score
-            team.coin += escape_room_question.coin
-            team.save()
-
+            team, validated_data = self.counting_score(team, escape_room_question, validated_data)
             validated_data['team_id'] = team.id
             instance = super().create(validated_data)
             return instance
+
+    def counting_score(self, team, escape_room_question, validated_data):
+        total_score = escape_room_question.score
+        total_coin = escape_room_question.coin
+        solver_teams = models.TeamEscapeRoomQuestion.objects.filter(escape_room_question=escape_room_question)
+        solver_teams_count = solver_teams.count() + 1
+        denominator = (solver_teams_count * (solver_teams_count + 1)) / 2
+        if solver_teams.count() != 0:
+
+            i = solver_teams_count
+            for solver_team in solver_teams:
+                selected_team = solver_team.team
+                team_escape_room_question_record = models.TeamEscapeRoomQuestion.objects.get(team=selected_team,
+                                                                                             escape_room_question=escape_room_question)
+
+                selected_team.score -= team_escape_room_question_record.score
+                selected_team_score = (i / denominator) * total_score
+                selected_team.score += selected_team_score
+                team_escape_room_question_record.score = selected_team_score
+
+                selected_team.coin -= team_escape_room_question_record.coin
+                selected_team_coin = (i / denominator) * total_coin
+                selected_team.coin += (i / denominator) * total_coin
+                team_escape_room_question_record.coin = selected_team_coin
+
+                selected_team.save()
+                team_escape_room_question_record.save()
+                i -= 1
+
+        team.score += (1 / denominator) * total_score
+        validated_data['score'] = (1 / denominator) * total_score
+        team.coin += (1 / denominator) * total_coin
+        validated_data['coin'] = (1 / denominator) * total_coin
+        team.save()
+
+        return team, validated_data
 
 
 class TeamCTFFlagSerializer(serializers.ModelSerializer):
