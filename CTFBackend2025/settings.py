@@ -176,19 +176,21 @@ AUTH_USER_MODEL = 'core.CustomUser'
 # ]
 
 SANDBOX = env('SANDBOX', default=True, cast=bool)
-MERCHANT = env('MERCHANT')
+MERCHANT = env('MERCHANT', default="1"*36)
 if SANDBOX:
     sandbox = 'sandbox'
 else:
-    sandbox = 'www'
+    sandbox = 'payment'
 
 
-ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentRequest.json"
-ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/rest/WebGate/PaymentVerification.json"
+ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/v4/payment/request.json"
+ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/v4/payment/verify.json"
 ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
 
-AMOUNT = env('AMOUNT', default=0, cast=int)  # Rial / Required
-CALLBACK_URL = env('CALLBACK_URL')
+AMOUNT = env('AMOUNT', default=1000, cast=int)
+CALLBACK_URL = env(
+    'CALLBACK_URL', default="http://127.0.0.1:8000/api/contestant/verify/")
 DESCRIPTION = env(
-    'DESCRIPTION', default="توضیحات مربوط به تراکنش را در این قسمت وارد کنید")  # Required
-REDIRECT_PATH = env('REDIRECT_PATH')
+    'DESCRIPTION', default="explaination of the payment request")
+REDIRECT_PATH = env(
+    'REDIRECT_PATH', default="http://localhost:8000/api/contestant/redirect/")
