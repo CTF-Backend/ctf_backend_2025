@@ -16,7 +16,7 @@ class CustomStaffUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        exclude = ('password',)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
