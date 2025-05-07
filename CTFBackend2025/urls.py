@@ -34,7 +34,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-docs'),
+    path('swagger/', schema_view.with_ui('swagger',
+         cache_timeout=0), name='swagger-docs'),
 
     path('api/core/', include('core.urls')),
     path('api/contestant/', include('contestant.urls')),

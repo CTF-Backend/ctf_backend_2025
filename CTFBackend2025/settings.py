@@ -168,3 +168,23 @@ AUTH_USER_MODEL = 'core.CustomUser'
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:8000",
 # ]
+
+SANDBOX = env('SANDBOX', default=True, cast=bool)
+MERCHANT = env('MERCHANT', default="1"*36)
+if SANDBOX:
+    sandbox = 'sandbox'
+else:
+    sandbox = 'payment'
+
+
+ZP_API_REQUEST = f"https://{sandbox}.zarinpal.com/pg/v4/payment/request.json"
+ZP_API_VERIFY = f"https://{sandbox}.zarinpal.com/pg/v4/payment/verify.json"
+ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
+
+AMOUNT = env('AMOUNT', default=1000, cast=int)
+CALLBACK_URL = env(
+    'CALLBACK_URL', default="http://127.0.0.1:8000/api/contestant/verify/")
+DESCRIPTION = env(
+    'DESCRIPTION', default="explaination of the payment request")
+REDIRECT_PATH = env(
+    'REDIRECT_PATH', default="http://localhost:8000/api/contestant/redirect/")

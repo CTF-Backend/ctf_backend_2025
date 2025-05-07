@@ -44,4 +44,8 @@ urlpatterns = [
          name='team-ctf-flag-report'),
     path('teams-report/', views.TeamsReport.as_view(),
          name='teams-report'),
+
+
+    path('request/', views.Pay.as_view(), name='request'),
+    path('verify/', views.Vrify.as_view(), name='verify'),
 ]

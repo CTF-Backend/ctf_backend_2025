@@ -1,7 +1,11 @@
 from datetime import datetime
 from io import BytesIO
-
+from .models import Authority
+import requests
+import json
 import arabic_reshaper
+from rest_framework.permissions import IsAuthenticated
+
 import pandas as pd
 from bidi.algorithm import get_display
 from django.http import HttpResponse
@@ -17,6 +21,8 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from contestant import models
 from contestant import serializers
@@ -213,7 +219,8 @@ class TeamEscapeRoomQuestionReport(APIView):
     def get(self, request, output_format=None):
         export_format = request.GET.get("output_format", "json")
         queryset = TeamEscapeRoomQuestion.objects.all().order_by("-created_at")
-        serializer = TeamEscapeRoomQuestionReportSerializer(queryset, many=True)
+        serializer = TeamEscapeRoomQuestionReportSerializer(
+            queryset, many=True)
 
         tehran_tz = timezone("Asia/Tehran")
 
@@ -240,7 +247,8 @@ class TeamEscapeRoomQuestionReport(APIView):
         Handles both naive and timezone-aware datetime objects.
         """
         if isinstance(created_at, str):
-            created_at = datetime.strptime(created_at[:-1], "%Y-%m-%dT%H:%M:%S.%f")
+            created_at = datetime.strptime(
+                created_at[:-1], "%Y-%m-%dT%H:%M:%S.%f")
             created_at = created_at.replace(tzinfo=UTC)
 
         if created_at.tzinfo is None:
@@ -272,7 +280,8 @@ class TeamEscapeRoomQuestionReport(APIView):
         doc = SimpleDocTemplate(output, pagesize=letter)
         elements = []
 
-        pdfmetrics.registerFont(TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+        pdfmetrics.registerFont(
+            TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
 
         title_style = ParagraphStyle(
             "TitleStyle",
@@ -310,7 +319,8 @@ class TeamEscapeRoomQuestionReport(APIView):
 
         for item in data:
             team_name = self.fix_persian_text(item["team_name"])
-            question_name = self.fix_persian_text(item["escape_room_question_name"])
+            question_name = self.fix_persian_text(
+                item["escape_room_question_name"])
             created_at = item["created_at"]
 
             table_data.append([
@@ -327,7 +337,8 @@ class TeamEscapeRoomQuestionReport(APIView):
             ("ALIGN", (0, 0), (-1, -1), "CENTER"),
             ("FONTNAME", (0, 0), (-1, -1), "BahijNazanin"),
             ("FONTSIZE", (0, 0), (-1, 0), 14),  # Larger font size for header
-            ("FONTSIZE", (0, 1), (-1, -1), 12),  # Normal font size for other rows
+            # Normal font size for other rows
+            ("FONTSIZE", (0, 1), (-1, -1), 12),
             ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
             ("BACKGROUND", (0, 1), (-1, -1), colors.lightgreen),
             ("GRID", (0, 0), (-1, -1), 1, colors.black),
@@ -347,7 +358,8 @@ class TeamEscapeRoomQuestionReport(APIView):
         Fix Persian text by reshaping it and handling RTL/LTR issues.
         """
         if self.is_persian(text):
-            reshaped_text = arabic_reshaper.reshape(text)  # Fix letter connections
+            reshaped_text = arabic_reshaper.reshape(
+                text)  # Fix letter connections
             return get_display(reshaped_text)  # Fix direction (RTL)
         return text
 
@@ -370,8 +382,10 @@ class TeamCTFFlagReport(APIView):
             {
                 "id": item["id"],
                 "team_name": item["team"]["name"],  # Team's name
-                "flag_name": item["flag"]["flag"],  # The flag's name (from flag field)
-                "ctf_question_name": item["flag"]["ctf_question"]["name"],  # The CTF question's name
+                # The flag's name (from flag field)
+                "flag_name": item["flag"]["flag"],
+                # The CTF question's name
+                "ctf_question_name": item["flag"]["ctf_question"]["name"],
                 "created_at": self.convert_to_tehran_time(item["created_at"], tehran_tz),
             }
             for item in serializer.data
@@ -390,7 +404,8 @@ class TeamCTFFlagReport(APIView):
         Handles both naive and timezone-aware datetime objects.
         """
         if isinstance(created_at, str):
-            created_at = datetime.strptime(created_at[:-1], "%Y-%m-%dT%H:%M:%S.%f")
+            created_at = datetime.strptime(
+                created_at[:-1], "%Y-%m-%dT%H:%M:%S.%f")
             created_at = created_at.replace(tzinfo=UTC)
 
         if created_at.tzinfo is None:
@@ -422,7 +437,8 @@ class TeamCTFFlagReport(APIView):
         doc = SimpleDocTemplate(output, pagesize=letter)
         elements = []
 
-        pdfmetrics.registerFont(TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+        pdfmetrics.registerFont(
+            TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
 
         title_style = ParagraphStyle(
             "TitleStyle",
@@ -462,7 +478,8 @@ class TeamCTFFlagReport(APIView):
         for item in data:
             team_name = self.fix_persian_text(item["team_name"])
             flag_name = self.fix_persian_text(item["flag_name"])
-            ctf_question_name = self.fix_persian_text(item["ctf_question_name"])
+            ctf_question_name = self.fix_persian_text(
+                item["ctf_question_name"])
             created_at = item["created_at"]
 
             table_data.append([
@@ -548,11 +565,15 @@ class TeamsReport(APIView):
         doc = SimpleDocTemplate(output, pagesize=letter)
         elements = []
 
-        pdfmetrics.registerFont(TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+        pdfmetrics.registerFont(
+            TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
 
-        title_style = ParagraphStyle("TitleStyle", fontName="BahijNazanin", fontSize=16, spaceAfter=10, alignment=1)
-        header_style = ParagraphStyle("HeaderStyle", fontName="BahijNazanin", fontSize=14, spaceAfter=5, alignment=1)
-        cell_style = ParagraphStyle("CellStyle", fontName="BahijNazanin", fontSize=12, spaceAfter=5, alignment=1)
+        title_style = ParagraphStyle(
+            "TitleStyle", fontName="BahijNazanin", fontSize=16, spaceAfter=10, alignment=1)
+        header_style = ParagraphStyle(
+            "HeaderStyle", fontName="BahijNazanin", fontSize=14, spaceAfter=5, alignment=1)
+        cell_style = ParagraphStyle(
+            "CellStyle", fontName="BahijNazanin", fontSize=12, spaceAfter=5, alignment=1)
 
         title = Paragraph("Teams Report", title_style)
         elements.append(title)
@@ -657,3 +678,94 @@ class TeamCTFHintListCreateAPIView(generics.ListCreateAPIView):
         return Response({
             "hint": hint_text
         }, status=status.HTTP_201_CREATED)
+
+
+class Pay(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Initiate Zarinpal Payment",
+        responses={
+            200: openapi.Response(
+                description="Payment initiated successfully",
+                examples={
+                    "application/json": {
+                        "status": True,
+                        "url": "https://zarinpal.com/startpay/<authority>",
+                        "authority": "<authority>"
+                    }
+                }
+            ),
+            400: "Bad Request"
+        }
+    )
+    def get(self, request):
+        data = {
+            "merchant_id": settings.MERCHANT,
+            "amount": settings.AMOUNT,
+            "description": settings.DESCRIPTION,
+            "callback_url": settings.CALLBACK_URL,
+        }
+        data = json.dumps(data)
+        headers = {'content-type': 'application/json',
+                   'content-length': str(len(data))}
+        try:
+            response = requests.post(
+                settings.ZP_API_REQUEST, data=data, headers=headers, timeout=10)
+            if response.status_code == 200:
+                response = response.json()['data']
+
+                if response['code'] == 100:
+                    authority = response['authority']
+                    Authority.objects.create(
+                        team=request.user.team, authority=response['authority'])
+                    return Response({'status': True, 'url': settings.ZP_API_STARTPAY + str(authority), 'authority': authority})
+                else:
+                    return Response({'status': False, 'code': str(response['code'])}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse(response)
+
+        except requests.exceptions.Timeout:
+            return Response({'status': False, 'code': 'timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except requests.exceptions.ConnectionError:
+            return Response({'status': False, 'code': 'connection error'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Vrify(APIView):
+
+    def get(self, request):
+        authority = request.GET.get('Authority', '')
+        data = {
+            "merchant_id": settings.MERCHANT,
+            "amount": settings.AMOUNT,
+            "authority": authority,
+        }
+        data = json.dumps(data)
+        headers = {'content-type': 'application/json',
+                   'content-length': str(len(data))}
+        response = requests.post(settings.ZP_API_VERIFY,
+                                 data=data, headers=headers)
+        redirect_url = settings.REDIRECT_PATH
+
+        if response.status_code == 200:
+            response = response.json()['data']
+            if response['code'] == 100:
+                authority_object = None
+                try:
+                    authority_object = Authority.objects.get(
+                        authority=authority)
+                except Authority.DoesNotExist:
+
+                    return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=Authority Doesnt Exist"})
+
+                authority_object.team.status = "payed"
+                authority_object.team.save()
+                setattr(authority_object, "verified", True)
+                authority_object.save()
+
+                return Response(status=302, headers={'Location': f"{redirect_url}?status:True&RefID={response['ref_id']}&message=transaction complete"})
+            elif response['code'] == 101:
+                return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=transaction already verified"})
+            else:
+                return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={str(response['code'])}"})
+
+        return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={response.status_code}"})

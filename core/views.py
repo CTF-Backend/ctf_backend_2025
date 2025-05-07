@@ -4,7 +4,15 @@ from rest_framework import generics
 from dj_rest_auth.views import LoginView
 from .serializers import CustomLoginSerializer
 from staff.serializers import CustomStaffUserSerializer
+from .models import *
 from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import HttpResponse
+from rest_framework import status
+from django.conf import settings
+import requests
+import json
 from rest_framework import permissions
 
 
