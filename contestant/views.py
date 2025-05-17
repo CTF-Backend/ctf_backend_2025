@@ -648,10 +648,10 @@ class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
             "instance": self.get_serializer(instance).data
         }, status=status.HTTP_201_CREATED)
 
-    # def get_permissions(self):
-    #     if self.request.method == "GET":
-    #         return [permissions.IsAdminUser()]
-    #     return [permissions.IsAuthenticated()]
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAdminUser()]
+        return [permissions.IsAuthenticated()]
 
 
 class TeamCTFHintListCreateAPIView(generics.ListCreateAPIView):
