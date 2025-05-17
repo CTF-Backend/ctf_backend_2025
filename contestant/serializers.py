@@ -76,6 +76,7 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
             'coin',
             'x_coordinate',
             'y_coordinate',
+            'floor',
         ]
 
 
