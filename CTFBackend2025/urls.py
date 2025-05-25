@@ -19,6 +19,8 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.conf import settings
+from django.conf.urls.static import static
 schema_view = get_schema_view(
     openapi.Info(
         title="CTF Backend 2025",
@@ -42,3 +44,5 @@ urlpatterns = [
     path('api/staff/', include('staff.urls')),
 
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
