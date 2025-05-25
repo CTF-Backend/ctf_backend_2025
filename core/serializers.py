@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core import models
 from contestant import models as contestant_models
-from core.models import CustomUser
+from core.models import CustomUser, RegistrationQuestion
 from . import exceptions
 from dj_rest_auth.serializers import LoginSerializer
 from django.contrib.auth import authenticate
@@ -83,3 +83,24 @@ class CustomLoginSerializer(LoginSerializer):
 
         attrs['user'] = user
         return attrs
+
+
+class RetrieveRegistrationQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RegistrationQuestion
+        fields = ['id']
+
+
+class SubmitRegistrationQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RegistrationQuestion
+        fields = ['id', 'accepted', 'user_input', 'updated_at', 'created_at']
+        read_only_fields = ['accepted']
+
+    def save(self, **kwargs):
+        flag = self.instance.flag
+        if self.validated_data.get['user_input'] == flag:
+            self.validated_data['accepted'] = True
+        else:
+            self.validated_data['accepted'] = False
+        return super().save(**kwargs)
