@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
-from .managers import CustomUserManager
+
+from .creat_flag import generate_random_six_character_ascii_flag_with_letters_and_digits
+from .managers import CustomUserManager, RegistrationQuestionManager
 
 
 class CustomUser(AbstractUser, PermissionsMixin):
@@ -19,3 +21,16 @@ class CustomUser(AbstractUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+class RegistrationQuestion(models.Model):
+    flag = models.CharField(max_length=100)
+    accepted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    user_input = models.CharField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        if not self.flag:
+            self.slug = generate_random_six_character_ascii_flag_with_letters_and_digits()
+        super().save(*args, **kwargs)

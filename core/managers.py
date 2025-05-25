@@ -1,6 +1,8 @@
 from django.contrib.auth.models import BaseUserManager
 from django.core.validators import validate_email
-from rest_framework.authtoken.models import Token
+from django.db import models
+
+from .creat_flag import generate_random_six_character_ascii_flag_with_letters_and_digits
 from .exceptions import *
 
 
@@ -28,3 +30,9 @@ class CustomUserManager(BaseUserManager):
         user = self.create_user(username, password, **extra_fields)
         user.save(using=self._db)
         return user
+
+
+class RegistrationQuestionManager(models.Manager):
+    def create_article(self, *args, **kwargs):
+        flag = generate_random_six_character_ascii_flag_with_letters_and_digits()
+        return self.create(*args, **kwargs, flag=flag)
