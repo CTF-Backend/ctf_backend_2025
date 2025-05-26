@@ -29,6 +29,8 @@ class TeamSignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['is_team'] = True
+        if contestant_models.Team.objects.filter(name=validated_data['team_name']).exists():
+            raise exceptions.TeamNameAlreadyExist()
         team_name = validated_data.pop('team_name')
         validated_data.pop('password2')
         team_account = CustomUser.objects.create_user(
