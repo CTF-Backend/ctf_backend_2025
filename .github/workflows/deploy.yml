@@ -1,0 +1,15 @@
+name: Deploy to APA VPS
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Update server
+        run: |
+          cd /home/apa/ctf_backend_2025
+          git pull https://${{ secrets.USERNAME }}:${{ secrets.PASSWORD }}@github.com/CTF-Backend/ctf_backend_2025.git main
+          docker compose up --build -d
