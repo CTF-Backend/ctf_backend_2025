@@ -1,7 +1,7 @@
 name: Deploy to APA VPS
 on:
   push:
-    branches: [ test-cicd ]
+    branches: [ main ]
 jobs:
   deploy:
     runs-on: self-hosted
