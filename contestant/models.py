@@ -19,7 +19,7 @@ class Team(models.Model):
 class TeamMember(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT,
                              related_name="team_members", verbose_name="تیم")
-    name = models.CharField(max_length=255, verbose_name="نام", unique=True)
+    name = models.CharField(max_length=255, verbose_name="نام")
     university_entry_year = models.IntegerField(verbose_name="سال ورودی")
     phone_number = models.CharField(max_length=255, verbose_name="شماره تلفن")
     student_number = models.CharField(
