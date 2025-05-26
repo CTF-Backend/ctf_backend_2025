@@ -28,7 +28,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = ['apachee.mazapa.ir']
 
 # Application definition
 
@@ -165,9 +165,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_HEADERS = True
 
 AUTH_USER_MODEL = 'core.CustomUser'
-CSRF_TRUSTED_ORIGINS = [
-    'https://apachee.mazapa.ir',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://apachee.mazapa.ir',
+# ]
 
 SANDBOX = env('SANDBOX', default=True, cast=bool)
 MERCHANT = env('MERCHANT', default="1"*36)
