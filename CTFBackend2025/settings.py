@@ -165,9 +165,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_HEADERS = True
 
 AUTH_USER_MODEL = 'core.CustomUser'
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8000",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    env('CORS_ALLOWED_ORIGINS'),
+]
 
 SANDBOX = env('SANDBOX', default=True, cast=bool)
 MERCHANT = env('MERCHANT', default="1"*36)
