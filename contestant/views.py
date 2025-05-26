@@ -60,7 +60,8 @@ class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.TeamMember.objects.all()
+    def get_queryset(self):
+        return models.TeamMember.objects.filter(team=self.request.user.team)
     serializer_class = serializers.TeamMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
