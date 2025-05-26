@@ -20,7 +20,7 @@ class TeamSignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CustomUser
-        fields = ('id', 'username', 'password', 'password2', 'team_name', 'phone_number')
+        fields = ('id', 'username', 'password', 'password2', 'team_name')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:

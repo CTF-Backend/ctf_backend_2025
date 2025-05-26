@@ -17,7 +17,6 @@ class CustomUser(AbstractUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = 'username'
-    phone_number = models.CharField(max_length=12, null=True)
     objects = CustomUserManager()
 
     def __str__(self):
