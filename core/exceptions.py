@@ -25,3 +25,13 @@ class SuccessfullyLoggOut(AppException):
     message = 'با موفقیت از حساب کاربری خود خارج شدید.'
     message_en = 'You have been successfully logged out.'
     status_code = 200
+
+
+# class UsernameAlreadyExist(AppException):
+#     message = 'نام کاربری انتخاب شده تکراری میباشد.'
+#     message_en = 'The selected username is already .'
+#
+#
+# class TeamNameAlreadyExist(AppException):
+#     message = 'نام تیم انتخاب شده تکراری می‌باشد.'
+#     message_en = 'The selected team name is already taken.'
