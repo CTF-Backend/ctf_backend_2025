@@ -33,6 +33,8 @@ class TeamMember(models.Model):
 class EscapeRoomQuestion(models.Model):
     name = models.CharField(max_length=255, verbose_name="نام", unique=True)
     description = models.TextField(verbose_name="توضیحات")
+    type = models.CharField(
+        max_length=50, choices=consts.ESCAPEROOM_QUESTION_TOPIC_CHOICES, default="string", verbose_name="نوع")
 
     floor = models.IntegerField(verbose_name="طبقه")
     x_coordinate = models.CharField(max_length=255, verbose_name="مختصات طولی")
@@ -60,8 +62,9 @@ class CTFQuestion(models.Model):
                             default="file", verbose_name="نوع")
     topic = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TOPIC_CHOICES,
                              default="steganography", verbose_name="موضوع")
-    file = models.FileField(upload_to="uploads/", verbose_name="فایل")
+    file = models.FileField(upload_to="uploads/", verbose_name="فایل", null=True)
     is_shown = models.BooleanField(default=True, verbose_name="قابل مشاهده")
+    flag_count = models.IntegerField(default=1, verbose_name="تعداد فلگ ها")
 
     creator = models.ForeignKey(
         CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
@@ -70,6 +73,8 @@ class CTFQuestion(models.Model):
     def __str__(self):
         return self.name
 
+
+# class TeamChallengeImages(models.Model):
 
 class CTFFlags(models.Model):
     ctf_question = models.ForeignKey(

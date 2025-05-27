@@ -17,3 +17,10 @@ CTF_QUESTION_TOPIC_CHOICES = [
     ("crypto", "crypto"),
     ("misc", "misc"),
 ]
+
+ESCAPEROOM_QUESTION_TOPIC_CHOICES = [
+    ("string", "string"),
+    ("clock", "clock"),
+    ("directions", "directions"),
+    ("filing_table", "filing_table"),
+]
