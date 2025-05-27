@@ -39,3 +39,8 @@ class CoinIsNotEnough(AppException):
 class UserDoesNotHaveTeam(AppException):
     message = 'کاربر وارد شده دارای تیم نمیباشد.'
     message_en = 'User does not have team.'
+
+
+class TeamDoesntExist(AppException):
+    message = 'شما به عنوان تیم وارد نشده اید.'
+    message_en = 'You are not logged in as a team.'

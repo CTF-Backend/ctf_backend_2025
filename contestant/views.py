@@ -23,6 +23,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from . import exceptions
 
 from contestant import models
 from contestant import serializers
@@ -57,6 +58,16 @@ class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == "GET":
             return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
+
+
+class TeamUpdateNameAPIView(generics.UpdateAPIView):
+    serializer_class = serializers.TeamUpdateNameSerializer
+
+    def get_object(self):
+        try:
+            return models.Team.objects.get(id=self.request.user.team.id)
+        except models.Team.DoesNotExist:
+            raise exceptions.TeamDoesntExist()
 
 
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -720,9 +731,11 @@ class Pay(APIView):
                     authority = response['authority']
                     Authority.objects.create(
                         team=request.user.team, authority=response['authority'])
-                    return Response({'status': True, 'url': settings.ZP_API_STARTPAY + str(authority), 'authority': authority})
+                    return Response(
+                        {'status': True, 'url': settings.ZP_API_STARTPAY + str(authority), 'authority': authority})
                 else:
-                    return Response({'status': False, 'code': str(response['code'])}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'status': False, 'code': str(response['code'])},
+                                    status=status.HTTP_400_BAD_REQUEST)
             return HttpResponse(response)
 
         except requests.exceptions.Timeout:
@@ -756,17 +769,22 @@ class Vrify(APIView):
                         authority=authority)
                 except Authority.DoesNotExist:
 
-                    return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=Authority Doesnt Exist"})
+                    return Response(status=302, headers={
+                        'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=Authority Doesnt Exist"})
 
                 authority_object.team.status = "payed"
                 authority_object.team.save()
                 setattr(authority_object, "verified", True)
                 authority_object.save()
 
-                return Response(status=302, headers={'Location': f"{redirect_url}?status:True&RefID={response['ref_id']}&message=transaction complete"})
+                return Response(status=302, headers={
+                    'Location': f"{redirect_url}?status:True&RefID={response['ref_id']}&message=transaction complete"})
             elif response['code'] == 101:
-                return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=transaction already verified"})
+                return Response(status=302, headers={
+                    'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message=transaction already verified"})
             else:
-                return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={str(response['code'])}"})
+                return Response(status=302, headers={
+                    'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={str(response['code'])}"})
 
-        return Response(status=302, headers={'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={response.status_code}"})
+        return Response(status=302, headers={
+            'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={response.status_code}"})

@@ -11,6 +11,14 @@ class TeamSerializer(serializers.ModelSerializer):
         exclude = ('account',)
 
 
+class TeamUpdateNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Team
+        fields = [
+            'name',
+        ]
+
+
 class TeamMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TeamMember

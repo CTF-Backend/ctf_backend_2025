@@ -7,6 +7,7 @@ urlpatterns = [
          name='teams'),
     path('teams/<int:pk>/', views.TeamDetailAPIView.as_view(),
          name='teams'),
+    path('team-update-name/', views.TeamUpdateNameAPIView.as_view()),
     path('leaderboard/', views.leaderboard, name='leaderboard'),
 
     path('team-members/', views.TeamMemberListCreateAPIView.as_view(),
