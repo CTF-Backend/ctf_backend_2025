@@ -63,8 +63,11 @@ class TeamDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class TeamUpdateNameAPIView(generics.UpdateAPIView):
     serializer_class = serializers.TeamUpdateNameSerializer
 
-    def get_queryset(self):
-        return models.Team.objects.filter(id=self.request.user.team.id)
+    def get_object(self):
+        try:
+            return models.Team.objects.get(id=self.request.user.team.id)
+        except models.Team.DoesNotExist:
+            raise exceptions.TeamDoesntExist()
 
 
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
