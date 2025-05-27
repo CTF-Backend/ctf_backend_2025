@@ -17,6 +17,7 @@ class TeamUpdateNameSerializer(serializers.ModelSerializer):
         fields = [
             'name',
         ]
+        read_only_fields = ['account', 'coin', 'score', 'status']
 
 
 class TeamMemberSerializer(serializers.ModelSerializer):
