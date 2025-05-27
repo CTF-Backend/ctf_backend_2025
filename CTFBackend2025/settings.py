@@ -28,7 +28,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = ['apachee.mazapa.ir']
+ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
 
 # Application definition
 
