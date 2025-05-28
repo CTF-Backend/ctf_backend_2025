@@ -145,6 +145,9 @@ class CTFFlagsSerializer(serializers.ModelSerializer):
         fields = ['id', 'ctf_question', 'ctf_question_id', 'flag', 'score', 'hint', 'coin', 'creator', 'created_at']
 
     def create(self, validated_data):
+        flag_count = models.CTFQuestion.objects.get(id=validated_data['ctf_question_id']).flag_count
+        if models.CTFFlags.objects.filter(ctf_question_id = validated_data['ctf_question_id']).count() >= flag_count :
+            raise exceptions.FlagCountLimitation()
         request = self.context.get('request')
         if request and request.user:
             validated_data['creator'] = request.user

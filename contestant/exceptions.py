@@ -44,3 +44,8 @@ class UserDoesNotHaveTeam(AppException):
 class TeamDoesntExist(AppException):
     message = 'شما به عنوان تیم وارد نشده اید.'
     message_en = 'You are not logged in as a team.'
+
+
+class FlagCountLimitation(AppException):
+    message = 'شما به حداکثر تعداد مجاز ثبت فلگ رسیده‌اید.'
+    message_en = 'You have reached the maximum allowed number of flag submissions.'
