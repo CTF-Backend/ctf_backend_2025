@@ -141,6 +141,7 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
             challenge_image = obj.challenge_image
             if challenge_image:
                 ports = obj.ports
+                print(obj)
                 url_str = main.deploy_challenge(challenge_image, ports)
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
                 return url_str
