@@ -4,7 +4,7 @@ from .models import Team, TeamMember
 from django.contrib import admin
 from .models import (
     EscapeRoomQuestion, CTFQuestion, CTFFlags,
-    TeamEscapeRoomQuestion, TeamCTFFlag, TeamCTFHint, Authority
+    TeamEscapeRoomQuestion, TeamCTFFlag, TeamCTFHint, Authority, TeamChallengeImages
 )
 
 
@@ -40,13 +40,45 @@ class EscapeRoomQuestionAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+class TeamChallengeImagesInline(admin.TabularInline):
+    model = TeamChallengeImages
+    extra = 1
+    fields = ('team', 'url_str')
+    autocomplete_fields = ['team']
+    show_change_link = True
+
+
 @admin.register(CTFQuestion)
 class CTFQuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'type', 'topic', 'is_shown', 'flag_count', 'creator', 'created_at')
+    list_display = (
+        'id', 'name', 'type', 'topic', 'is_shown', 'flag_count', 'creator', 'created_at'
+    )
     list_filter = ('type', 'topic', 'is_shown', 'creator')
-    search_fields = ('name', 'description', 'creator__username')
-    readonly_fields = ('created_at',)
+    search_fields = ('name', 'description', 'challenge_image', 'creator__username')
     ordering = ('-created_at',)
+    list_editable = ('is_shown', 'flag_count')
+    readonly_fields = ('created_at',)
+    autocomplete_fields = ['creator']
+    inlines = [TeamChallengeImagesInline]
+    fieldsets = (
+        ("اطلاعات کلی", {
+            'fields': ('name', 'description', 'type', 'topic', 'flag_count', 'is_shown')
+        }),
+        ("فایل‌ها و ایمیج", {
+            'fields': ('file', 'challenge_image')
+        }),
+        ("سایر", {
+            'fields': ('creator', 'created_at')
+        }),
+    )
+
+
+@admin.register(TeamChallengeImages)
+class TeamChallengeImagesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'team', 'ctf_question', 'url_str')
+    search_fields = ('url_str', 'team__name', 'ctf_question__name')
+    list_filter = ('team', 'ctf_question')
+    autocomplete_fields = ['team', 'ctf_question']
 
 
 @admin.register(CTFFlags)

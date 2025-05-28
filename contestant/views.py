@@ -240,7 +240,7 @@ class TeamEscapeRoomQuestionListCreateAPIView(generics.ListCreateAPIView):
         instance = serializer.save()
 
         return Response({
-            "message": "پاسخ شما با موفقیت ثبت شد.",
+            "message": "پاسخ شما صحیح میباشد.",
             "instance": self.get_serializer(instance).data
         }, status=status.HTTP_201_CREATED)
 
@@ -674,7 +674,7 @@ class TeamCTFFlagListCreateAPIView(generics.ListCreateAPIView):
         instance = serializer.save()
 
         return Response({
-            "message": "پاسخ شما با موفقیت ثبت شد.",
+            "message": "پاسخ شما صحیح میباشد.",
             "instance": self.get_serializer(instance).data
         }, status=status.HTTP_201_CREATED)
 
