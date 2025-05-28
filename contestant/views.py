@@ -73,6 +73,7 @@ class TeamUpdateNameAPIView(generics.UpdateAPIView):
 class TeamMemberListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         return models.TeamMember.objects.filter(team=self.request.user.team)
+
     serializer_class = serializers.TeamMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -148,8 +149,9 @@ class EscapeRoomQuestionForContestantsListAPIView(generics.ListAPIView):
     ]
 
 
-class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = serializers.CTFQuestionSerializer
+class CTFQuestionListAPIView(generics.ListAPIView):
+    serializer_class = serializers.CTFQuestionListCreateSerializer
+    queryset = models.CTFQuestion.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
@@ -161,16 +163,32 @@ class CTFQuestionListCreateAPIView(generics.ListCreateAPIView):
         'creator', 'created_at'
     ]
 
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return models.CTFQuestion.objects.all()
-        return models.CTFQuestion.objects.filter(is_shown=True)
 
-
-class CTFQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class CTFQuestionListCreateForStaffAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CTFQuestionListCreateSerializer
     queryset = models.CTFQuestion.objects.all()
-    serializer_class = serializers.CTFQuestionSerializer
     permission_classes = [permissions.IsAdminUser]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'name', 'description', 'type', 'topic', 'file', 'is_shown',
+        'created_at'
+    ]
+    ordering_fields = [
+        'name', 'type', 'topic', 'file', 'is_shown',
+        'creator', 'created_at'
+    ]
+
+
+class CTFQuestionDetailForStaffAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.CTFQuestion.objects.all()
+    serializer_class = serializers.CTFQuestionDetailForStaffSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class CTFQuestionDetailAPIView(generics.RetrieveAPIView):
+    queryset = models.CTFQuestion.objects.all()
+    serializer_class = serializers.CTFQuestionDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class CTFFlagsListCreateAPIView(generics.ListCreateAPIView):

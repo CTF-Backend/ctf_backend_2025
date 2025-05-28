@@ -65,6 +65,7 @@ class CTFQuestion(models.Model):
     file = models.FileField(upload_to="uploads/", verbose_name="فایل", null=True)
     is_shown = models.BooleanField(default=True, verbose_name="قابل مشاهده")
     flag_count = models.IntegerField(default=1, verbose_name="تعداد فلگ ها")
+    challenge_image = models.CharField(max_length=255, verbose_name="ایمیج چالش", null=True, blank=True)
 
     creator = models.ForeignKey(
         CustomUser, on_delete=models.PROTECT, related_name="ctf_questions")
@@ -74,7 +75,12 @@ class CTFQuestion(models.Model):
         return self.name
 
 
-# class TeamChallengeImages(models.Model):
+class TeamChallengeImages(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_challenge_images")
+    url_str = models.CharField(max_length=700)
+    ctf_question = models.ForeignKey(
+        CTFQuestion, on_delete=models.PROTECT, related_name="team_challenge_images")
+
 
 class CTFFlags(models.Model):
     ctf_question = models.ForeignKey(

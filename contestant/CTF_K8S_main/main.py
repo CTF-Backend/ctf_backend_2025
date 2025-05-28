@@ -1,7 +1,6 @@
 import uuid
 from kubernetes import client, config
 
-
 def deploy_challenge(challenge_image):
     instance_id = str(uuid.uuid4())[:8]
 

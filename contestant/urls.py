@@ -22,9 +22,13 @@ urlpatterns = [
     path('escape-room-questions/contestans/', views.EscapeRoomQuestionForContestantsListAPIView.as_view(),
          name='escape-room-question-for-contestants'),
 
-    path('ctf-questions/', views.CTFQuestionListCreateAPIView.as_view(),
+    path('ctf-questions/', views.CTFQuestionListAPIView.as_view(),
+         name='ctf-question'),
+    path('ctf-questions-for-staff/', views.CTFQuestionListCreateForStaffAPIView.as_view(),
          name='ctf-question'),
     path('ctf-questions/<int:pk>/', views.CTFQuestionDetailAPIView.as_view(),
+         name='ctf-question-detail'),
+    path('ctf-questions-for-staff/<int:pk>/', views.CTFQuestionDetailForStaffAPIView.as_view(),
          name='ctf-question-detail'),
 
     path('ctf-flags/', views.CTFFlagsListCreateAPIView.as_view(),

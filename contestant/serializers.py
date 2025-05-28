@@ -3,6 +3,7 @@ from core import serializers as core_serializers
 from django.db import transaction
 from . import models
 from . import exceptions
+from .CTF_K8S_main import main
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -91,17 +92,12 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
         ]
 
 
-class CTFQuestionSerializer(serializers.ModelSerializer):
+class CTFQuestionListCreateSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
-    challenge_image_url = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     class Meta:
         model = models.CTFQuestion
         fields = '__all__'
-
-    def get_challenge_image_url(self):
-        request = self.context.get('request')
-
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -110,9 +106,38 @@ class CTFQuestionSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class CTFQuestionDetailForStaffSerializer(serializers.ModelSerializer):
+    creator = core_serializers.CustomUserSerializer(read_only=True)
+
+    class Meta:
+        model = models.CTFQuestion
+        fields = '__all__'
+
+
+class CTFQuestionDetailSerializer(serializers.ModelSerializer):
+    creator = core_serializers.CustomUserSerializer(read_only=True)
+    challenge_image_url = serializers.SerializerMethodField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = models.CTFQuestion
+        fields = '__all__'
+
+    def get_challenge_image_url(self, obj):
+        request = self.context.get('request')
+        team = request.user.team
+        if models.TeamChallengeImages.objects.filter(team_id=team, ctf_question_id=obj.id).exists():
+            team_challenge_image = models.TeamChallengeImages.objects.get(team=team, ctf_question=obj)
+            return team_challenge_image.url_str
+        else:
+            challenge_image = obj.challenge_image
+            url_str = main.deploy_challenge(challenge_image)
+            models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
+            return url_str
+
+
 class CTFFlagsSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
-    ctf_question = CTFQuestionSerializer(read_only=True)
+    ctf_question = CTFQuestionListCreateSerializer(read_only=True)
     ctf_question_id = serializers.IntegerField(write_only=True)
 
     class Meta:
@@ -127,7 +152,7 @@ class CTFFlagsSerializer(serializers.ModelSerializer):
 
 
 class CTFFlagsBaseSerializer(serializers.ModelSerializer):
-    ctf_question = CTFQuestionSerializer(read_only=True)
+    ctf_question = CTFQuestionListCreateSerializer(read_only=True)
 
     class Meta:
         model = models.CTFFlags

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: challenge-instance-{{instance_id}}
+  labels:
+    app: challenge
+    instance: {{instance_id}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: challenge
+      instance: {{instance_id}}
+  template:
+    metadata:
+      labels:
+        app: challenge
+        instance: {{instance_id}}
+    spec:
+      containers:
+      - name: challenge-container
+        image: {{challenge_image}}
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
