@@ -75,6 +75,12 @@ class CTFQuestion(models.Model):
         return self.name
 
 
+class CTFQuestionPort(models.Model):
+    title = models.CharField(max_length=20)
+    port = models.PositiveSmallIntegerField()
+    question = models.ForeignKey(CTFQuestion, on_delete=models.CASCADE, related_name='ports')
+
+
 class TeamChallengeImages(models.Model):
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="team_challenge_images")
     url_str = models.CharField(max_length=700)

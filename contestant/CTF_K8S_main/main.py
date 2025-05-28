@@ -9,7 +9,7 @@ def deploy_challenge(challenge_image, ports):
 
     # Map container ports
     container_ports = [
-        client.V1ContainerPort(container_port=port["port"], name=port["title"])
+        client.V1ContainerPort(container_port=port.port, name=port.title)
         for port in ports
     ]
 
@@ -31,7 +31,7 @@ def deploy_challenge(challenge_image, ports):
                     containers=[
                         client.V1Container(
                             name="challenge-container",
-                            image=f"{base_url}/challenge_image",
+                            image=f"{base_url}/{challenge_image}",
                             ports=container_ports
                         )
                     ],

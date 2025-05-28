@@ -4,6 +4,7 @@ from django.db import transaction
 from . import models
 from . import exceptions
 from .CTF_K8S_main import main
+from .models import CTFQuestionPort
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -139,11 +140,11 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
         else:
             challenge_image = obj.challenge_image
             if challenge_image:
-                url_str = main.deploy_challenge(challenge_image)
+                ports = obj.ports
+                url_str = main.deploy_challenge(challenge_image, ports)
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
                 return url_str
             return None
-
 
 class CTFFlagsSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
