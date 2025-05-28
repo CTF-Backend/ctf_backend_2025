@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Team, TeamMember
+from .models import Team, TeamMember, CTFQuestionPort
 from django.contrib import admin
 from .models import (
     EscapeRoomQuestion, CTFQuestion, CTFFlags,
@@ -48,6 +48,10 @@ class TeamChallengeImagesInline(admin.TabularInline):
     show_change_link = True
 
 
+class CTFQuestionPortInline(admin.TabularInline):
+    model = CTFQuestionPort
+
+
 @admin.register(CTFQuestion)
 class CTFQuestionAdmin(admin.ModelAdmin):
     list_display = (
@@ -59,7 +63,7 @@ class CTFQuestionAdmin(admin.ModelAdmin):
     list_editable = ('is_shown', 'flag_count')
     readonly_fields = ('created_at',)
     autocomplete_fields = ['creator']
-    inlines = [TeamChallengeImagesInline]
+    inlines = [TeamChallengeImagesInline, CTFQuestionPortInline]
     fieldsets = (
         ("اطلاعات کلی", {
             'fields': ('name', 'description', 'type', 'topic', 'flag_count', 'is_shown')
