@@ -93,10 +93,15 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
 
 class CTFQuestionSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
+    challenge_image_url = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     class Meta:
         model = models.CTFQuestion
         fields = '__all__'
+
+    def get_challenge_image_url(self):
+        request = self.context.get('request')
+
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -182,7 +187,7 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
         total_coin = escape_room_question.coin
         solver_teams = models.TeamEscapeRoomQuestion.objects.filter(escape_room_question=escape_room_question)
         solver_teams_count = solver_teams.count() + 1
-        denominator = (solver_teams_count * (solver_teams_count + 1)) / 2
+        denominator = (solver_teams_count * (solver_teams_count + 1)) // 2
         if solver_teams.count() != 0:
 
             i = solver_teams_count
@@ -192,23 +197,23 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
                                                                                              escape_room_question=escape_room_question)
 
                 selected_team.score -= team_escape_room_question_record.score
-                selected_team_score = (i / denominator) * total_score
+                selected_team_score = (i // denominator) * total_score
                 selected_team.score += selected_team_score
                 team_escape_room_question_record.score = selected_team_score
 
                 selected_team.coin -= team_escape_room_question_record.coin
-                selected_team_coin = (i / denominator) * total_coin
-                selected_team.coin += (i / denominator) * total_coin
+                selected_team_coin = (i // denominator) * total_coin
+                selected_team.coin += (i // denominator) * total_coin
                 team_escape_room_question_record.coin = selected_team_coin
 
                 selected_team.save()
                 team_escape_room_question_record.save()
                 i -= 1
 
-        team.score += (1 / denominator) * total_score
-        validated_data['score'] = (1 / denominator) * total_score
-        team.coin += (1 / denominator) * total_coin
-        validated_data['coin'] = (1 / denominator) * total_coin
+        team.score += (1 // denominator) * total_score
+        validated_data['score'] = (1 // denominator) * total_score
+        team.coin += (1 // denominator) * total_coin
+        validated_data['coin'] = (1 // denominator) * total_coin
         team.save()
 
         return team, validated_data
