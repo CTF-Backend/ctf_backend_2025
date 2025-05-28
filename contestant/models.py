@@ -62,7 +62,7 @@ class CTFQuestion(models.Model):
                             default="file", verbose_name="نوع")
     topic = models.CharField(max_length=50, choices=consts.CTF_QUESTION_TOPIC_CHOICES,
                              default="steganography", verbose_name="موضوع")
-    file = models.FileField(upload_to="uploads/", verbose_name="فایل", null=True)
+    file = models.FileField(upload_to="uploads/", verbose_name="فایل", null=True, blank=True)
     is_shown = models.BooleanField(default=True, verbose_name="قابل مشاهده")
     flag_count = models.IntegerField(default=1, verbose_name="تعداد فلگ ها")
     challenge_image = models.CharField(max_length=255, verbose_name="ایمیج چالش", null=True, blank=True)
