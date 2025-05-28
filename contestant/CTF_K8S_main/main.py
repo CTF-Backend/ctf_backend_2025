@@ -1,13 +1,18 @@
 import uuid
 from kubernetes import client, config
 
-def deploy_challenge(challenge_image):
+def deploy_challenge(challenge_image, ports):
+    base_url = "192.168.36.2:8182"
     instance_id = str(uuid.uuid4())[:8]
 
-    # Load Kubernetes configuration
     config.load_kube_config()
 
-    # Define the Deployment
+    # Map container ports
+    container_ports = [
+        client.V1ContainerPort(container_port=port["port"], name=port["title"])
+        for port in ports
+    ]
+
     deployment = client.V1Deployment(
         api_version="apps/v1",
         kind="Deployment",
@@ -26,8 +31,8 @@ def deploy_challenge(challenge_image):
                     containers=[
                         client.V1Container(
                             name="challenge-container",
-                            image=challenge_image,
-                            ports=[client.V1ContainerPort(container_port=80)],
+                            image=f"{base_url}/challenge_image",
+                            ports=container_ports
                         )
                     ],
                     image_pull_secrets=[
@@ -38,51 +43,41 @@ def deploy_challenge(challenge_image):
         )
     )
 
-    # Create the Deployment
     apps_v1 = client.AppsV1Api()
     apps_v1.create_namespaced_deployment(namespace="default", body=deployment)
     print(f"Deployment challenge-instance-{instance_id} created.")
 
-    # Define the Service with NodePort type
+    # Create service ports for NodePort service
+    service_ports = [
+        client.V1ServicePort(
+            name=port["title"],
+            port=port["port"],
+            target_port=port["port"],
+            protocol="TCP"
+        ) for port in ports
+    ]
+
     service = client.V1Service(
         api_version="v1",
         kind="Service",
         metadata=client.V1ObjectMeta(name=f"challenge-service-{instance_id}"),
         spec=client.V1ServiceSpec(
             selector={"app": "challenge", "instance": instance_id},
-            ports=[client.V1ServicePort(
-                port=80, target_port=80, protocol="TCP", node_port=None)],
+            ports=service_ports,
             type="NodePort"
         )
     )
 
-    # Create the Service
     core_v1 = client.CoreV1Api()
     service_response = core_v1.create_namespaced_service(namespace="default", body=service)
     print(f"Service challenge-service-{instance_id} created.")
 
-    # Retrieve the random NodePort assigned to the service
-    node_port = None
+    # Retrieve NodePorts for each port
+    port_map = {}
     for port in service_response.spec.ports:
-        if port.node_port:
-            node_port = port.node_port
+        port_map[port.name] = port.node_port
 
-    if not node_port:
-        raise Exception("Failed to retrieve a random NodePort.")
+    urls = {title: f"http://localhost:{node_port}" for title, node_port in port_map.items() if node_port}
 
-    # port_forward_process = subprocess.Popen(
-    #     ["kubectl", "port-forward", f"svc/challenge-service-{instance_id}", f"{node_port}:{node_port}"],
-    #     stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    # )
+    return urls
 
-    # time.sleep(5)
-
-    url = f"http://localhost:{node_port}"
-    return url
-
-
-# if __name__ == "__main__":
-#     challenge_image = "registry.hamdocker.ir/the-atid/flask-my-app:latest"
-#
-#     challenge_url = deploy_challenge(challenge_image)
-#     print(f"Challenge instance URL: {challenge_url}")
