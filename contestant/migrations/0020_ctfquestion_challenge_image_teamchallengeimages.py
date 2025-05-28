@@ -11,11 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ctfquestion',
-            name='challenge_image',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='ایمیج چالش'),
-        ),
         migrations.CreateModel(
             name='TeamChallengeImages',
             fields=[
