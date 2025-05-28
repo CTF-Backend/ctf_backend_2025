@@ -94,10 +94,14 @@ class EscapeRoomQuestionForContestantsListSerializer(serializers.ModelSerializer
 
 class CTFQuestionListCreateSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
+    flag_ids = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CTFQuestion
         fields = '__all__'
+
+    def get_flag_ids(self, obj):
+        return list(obj.ctf_questions_flags.values_list('id', flat=True))
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -130,9 +134,11 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
             return team_challenge_image.url_str
         else:
             challenge_image = obj.challenge_image
-            url_str = main.deploy_challenge(challenge_image)
-            models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
-            return url_str
+            if challenge_image:
+                url_str = main.deploy_challenge(challenge_image)
+                models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
+                return url_str
+            return None
 
 
 class CTFFlagsSerializer(serializers.ModelSerializer):
@@ -146,7 +152,7 @@ class CTFFlagsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         flag_count = models.CTFQuestion.objects.get(id=validated_data['ctf_question_id']).flag_count
-        if models.CTFFlags.objects.filter(ctf_question_id = validated_data['ctf_question_id']).count() >= flag_count :
+        if models.CTFFlags.objects.filter(ctf_question_id=validated_data['ctf_question_id']).count() >= flag_count:
             raise exceptions.FlagCountLimitation()
         request = self.context.get('request')
         if request and request.user:
