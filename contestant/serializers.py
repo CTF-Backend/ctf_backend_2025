@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import serializers
 from core import serializers as core_serializers
 from django.db import transaction
@@ -141,7 +143,7 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
             challenge_image = obj.challenge_image
             if challenge_image:
                 ports = obj.ports
-                print(obj)
+                print(json.dumps(obj))
                 url_str = main.deploy_challenge(challenge_image, ports)
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
                 return url_str
