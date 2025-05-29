@@ -150,7 +150,8 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
                 ports = obj.ports.all()
                 url_str = main.deploy_challenge(challenge_image, ports)
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
-                return url_str
+                dict_data = json.loads(url_str)
+                return dict_data
             return None
 
     class Meta:
