@@ -143,7 +143,8 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
         team = request.user.team
         if models.TeamChallengeImages.objects.filter(team_id=team, ctf_question_id=obj.id).exists():
             team_challenge_image = models.TeamChallengeImages.objects.get(team=team, ctf_question=obj)
-            dict_data = json.loads(team_challenge_image.url_str)
+            fixed_data = team_challenge_image.url_str.replace("'", '"')
+            dict_data = json.loads(fixed_data)
             return dict_data
         else:
             challenge_image = obj.challenge_image
@@ -151,7 +152,8 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
                 ports = obj.ports.all()
                 url_str = main.deploy_challenge(challenge_image, ports)
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
-                dict_data = json.loads(url_str)
+                fixed_data = url_str.replace("'", '"')
+                dict_data = json.loads(fixed_data)
                 return dict_data
             return None
 
