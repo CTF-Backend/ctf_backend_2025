@@ -313,7 +313,7 @@ class TeamEscapeRoomQuestionReport(APIView):
         elements = []
 
         pdfmetrics.registerFont(
-            TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+            TTFont("BahijNazanin", r"../uploads/bahij-nazanin.ttf"))
 
         title_style = ParagraphStyle(
             "TitleStyle",
@@ -598,7 +598,7 @@ class TeamsReport(APIView):
         elements = []
 
         pdfmetrics.registerFont(
-            TTFont("BahijNazanin", r"D:\Downloads\bahij-nazanin.ttf"))
+            TTFont("BahijNazanin", r"../uploads/bahij-nazanin.ttf"))
 
         title_style = ParagraphStyle(
             "TitleStyle", fontName="BahijNazanin", fontSize=16, spaceAfter=10, alignment=1)
