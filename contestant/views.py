@@ -1,6 +1,6 @@
 from datetime import datetime
 from io import BytesIO
-from .models import Authority
+from .models import Authority, CTFQuestionPort
 import requests
 import json
 import arabic_reshaper
@@ -21,6 +21,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from . import exceptions
@@ -28,7 +29,7 @@ from . import exceptions
 from contestant import models
 from contestant import serializers
 from .models import TeamEscapeRoomQuestion
-from .serializers import TeamEscapeRoomQuestionReportSerializer
+from .serializers import TeamEscapeRoomQuestionReportSerializer, CTFQuestionPortSerializer
 import os
 from django.conf import settings
 from django.shortcuts import render
@@ -806,3 +807,10 @@ class Vrify(APIView):
 
         return Response(status=302, headers={
             'Location': f"{redirect_url}?status:False&RefID={response['ref_id']}&message={response.status_code}"})
+
+
+class ListCTFQuestionPortApiView(ListAPIView):
+    serializer_class = CTFQuestionPortSerializer
+
+    def get_queryset(self):
+        return CTFQuestionPort.objects.filter(question_id=self.kwargs['question_pk'], hidden=False)

@@ -79,6 +79,7 @@ class CTFQuestionPort(models.Model):
     title = models.CharField(max_length=20)
     port = models.PositiveSmallIntegerField()
     question = models.ForeignKey(CTFQuestion, on_delete=models.CASCADE, related_name='ports')
+    hidden = models.BooleanField(default=False)
 
 
 class TeamChallengeImages(models.Model):

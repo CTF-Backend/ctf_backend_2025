@@ -2,6 +2,8 @@ from django.urls import path
 from contestant import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from contestant.views import ListCTFQuestionPortApiView
+
 urlpatterns = [
     path('teams/', views.TeamListAPIView.as_view(),
          name='teams'),
@@ -50,6 +52,7 @@ urlpatterns = [
     path('teams-report/', views.TeamsReport.as_view(),
          name='teams-report'),
 
+    path('ctf-question-ports/<int:question_pk>/', ListCTFQuestionPortApiView.as_view()),
 
     path('request/', views.Pay.as_view(), name='request'),
     path('verify/', views.Vrify.as_view(), name='verify'),

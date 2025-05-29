@@ -125,13 +125,15 @@ class CTFQuestionDetailForStaffSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CTFQuestionPortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CTFQuestionPort
+        fields = '__all__'
+
+
 class CTFQuestionDetailSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
     challenge_image_url = serializers.SerializerMethodField(read_only=True, allow_null=True)
-
-    class Meta:
-        model = models.CTFQuestion
-        fields = '__all__'
 
     def get_challenge_image_url(self, obj):
         request = self.context.get('request')
@@ -147,6 +149,7 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
                 models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
                 return url_str
             return None
+
 
 class CTFFlagsSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
