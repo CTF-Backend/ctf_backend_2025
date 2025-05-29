@@ -6,7 +6,7 @@ import time
 
 def deploy_challenge(challenge_image, ports):
     if "dani-first-server" in challenge_image:
-        deploy_ftp_challenge(challenge_image, ports)
+        return deploy_ftp_challenge(challenge_image, ports)
     print(ports)
     base_url = "192.168.36.2:8182"
     instance_id = str(uuid.uuid4())[:8]
@@ -242,7 +242,7 @@ def deploy_ftp_challenge(challenge_image, ports):
                             env=[
                                 client.V1EnvVar(
                                     name="FTP_PASSIVE_PORT",
-                                    value=port_map["ftp-passive-1"]
+                                    value=str(port_map["ftp-passive-1"])
                                 )
                             ]
                         )
