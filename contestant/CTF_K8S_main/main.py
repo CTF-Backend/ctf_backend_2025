@@ -211,37 +211,21 @@ def deploy_ftp_challenge(challenge_image, ports):
     for port in service_response.spec.ports:
         port_map[port.name] = port.node_port
 
-    service_ports = [
-        client.V1ServicePort(
-            name=port.title,
-            port=port.port,
-            target_port=port.port,
-            protocol="TCP"
-        ) for port in ports if port.title != 'ftp-passive'
-    ]
-
-    service_ports.append(
-        client.V1ServicePort(
-            name="ftp-passive",
-            port=str(port_map["ftp-passive"]),
-            target_port=str(port_map["ftp-passive"]),
-            protocol="TCP"
-        )
-    )
-
-    service = client.V1Service(
-        api_version="v1",
-        kind="Service",
-        metadata=client.V1ObjectMeta(name=f"challenge-service-{instance_id}"),
-        spec=client.V1ServiceSpec(
-            selector={"app": "challenge", "instance": instance_id},
-            ports=service_ports,
-            type="NodePort"
-        )
-    )
+    patch_body = {
+        "spec": {
+            "ports": [
+                {
+                    "name": "ftp-passive",
+                    "port": port_map["ftp-passive"],
+                    "targetPort": port_map["ftp-passive"],
+                    "protocol": "TCP"
+                }
+            ]
+        }
+    }
 
     core_v1 = client.CoreV1Api()
-    service_response = core_v1.patch_namespaced_service(namespace="default", body=service,name=f"challenge-service-{instance_id}")
+    service_response = core_v1.patch_namespaced_service(namespace="default", body=patch_body, name=f"challenge-service-{instance_id}")
     print(f"Service challenge-service-{instance_id} updated.")
 
     # Map container ports
