@@ -138,17 +138,17 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
     def get_challenge_image_url(self, obj):
         request = self.context.get('request')
         team = request.user.team
-        if models.TeamChallengeImages.objects.filter(team_id=team, ctf_question_id=obj.id).exists():
-            team_challenge_image = models.TeamChallengeImages.objects.get(team=team, ctf_question=obj)
-            return team_challenge_image.url_str
-        else:
-            challenge_image = obj.challenge_image
-            if challenge_image:
-                ports = obj.ports.all()
-                url_str = main.deploy_challenge(challenge_image, ports)
-                models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
-                return url_str
-            return None
+        # if models.TeamChallengeImages.objects.filter(team_id=team, ctf_question_id=obj.id).exists():
+        #     team_challenge_image = models.TeamChallengeImages.objects.get(team=team, ctf_question=obj)
+        #     return team_challenge_image.url_str
+        # else:
+        challenge_image = obj.challenge_image
+        if challenge_image:
+            ports = obj.ports.all()
+            url_str = main.deploy_challenge(challenge_image, ports)
+            models.TeamChallengeImages.objects.create(team=team, ctf_question=obj, url_str=url_str)
+            return url_str
+        return None
 
     class Meta:
         model = CTFQuestion
