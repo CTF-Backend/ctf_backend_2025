@@ -207,16 +207,52 @@ def deploy_ftp_challenge(challenge_image, ports):
     service_response = core_v1.create_namespaced_service(namespace="default", body=service)
     print(f"Service challenge-service-{instance_id} created.")
 
-    # Retrieve NodePorts for each port
     port_map = {}
     for port in service_response.spec.ports:
         port_map[port.name] = port.node_port
 
+    service_ports = [
+        client.V1ServicePort(
+            name=port.title,
+            port=port.port,
+            target_port=port.port,
+            protocol="TCP"
+        ) for port in ports if port.name != 'ftp-passive'
+    ]
+
+    service_ports.append(
+        client.V1ServicePort(
+            name="ftp-passive",
+            port=str(port_map["ftp-passive"]),
+            target_port=str(port_map["ftp-passive"]),
+            protocol="TCP"
+        )
+    )
+
+    service = client.V1Service(
+        api_version="v1",
+        kind="Service",
+        metadata=client.V1ObjectMeta(name=f"challenge-service-{instance_id}"),
+        spec=client.V1ServiceSpec(
+            selector={"app": "challenge", "instance": instance_id},
+            ports=service_ports,
+            type="NodePort"
+        )
+    )
+
+    core_v1 = client.CoreV1Api()
+    service_response = core_v1.patch_namespaced_service(namespace="default", body=service)
+    print(f"Service challenge-service-{instance_id} updated.")
+
     # Map container ports
     container_ports = [
         client.V1ContainerPort(container_port=port.port, name=port.title)
-        for port in ports
+        for port in ports if port.name != 'ftp-passive'
     ]
+
+    container_ports.append(
+        client.V1ContainerPort(container_port=str(port_map["ftp-passive"]), name="ftp-passive")
+    )
 
     deployment = client.V1Deployment(
         api_version="apps/v1",
@@ -242,7 +278,7 @@ def deploy_ftp_challenge(challenge_image, ports):
                             env=[
                                 client.V1EnvVar(
                                     name="FTP_PASSIVE_PORT",
-                                    value=str(port_map["ftp-passive-1"])
+                                    value=str(port_map["ftp-passive"])
                                 )
                             ]
                         )
