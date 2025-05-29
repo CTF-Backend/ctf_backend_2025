@@ -99,6 +99,7 @@ class CTFQuestionListCreateSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
     flag_ids = serializers.SerializerMethodField()
     flag_coins = serializers.SerializerMethodField()
+    flag_scores = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CTFQuestion
@@ -109,6 +110,8 @@ class CTFQuestionListCreateSerializer(serializers.ModelSerializer):
 
     def get_flag_coins(self, obj):
         return list(obj.ctf_questions_flags.values_list('coin', flat=True))
+    def get_flag_scores(self, obj):
+        return list(obj.ctf_questions_flags.values_list('score', flat=True))
 
     def create(self, validated_data):
         request = self.context.get('request')
