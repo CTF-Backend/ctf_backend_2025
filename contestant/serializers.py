@@ -143,7 +143,8 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
         team = request.user.team
         if models.TeamChallengeImages.objects.filter(team_id=team, ctf_question_id=obj.id).exists():
             team_challenge_image = models.TeamChallengeImages.objects.get(team=team, ctf_question=obj)
-            return team_challenge_image.url_str
+            dict_data = json.loads(team_challenge_image.url_str)
+            return dict_data
         else:
             challenge_image = obj.challenge_image
             if challenge_image:
