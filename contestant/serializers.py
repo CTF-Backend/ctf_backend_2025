@@ -6,7 +6,7 @@ from django.db import transaction
 from . import models
 from . import exceptions
 from .CTF_K8S_main import main
-from .models import CTFQuestionPort
+from .models import CTFQuestionPort, CTFQuestion
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -150,6 +150,9 @@ class CTFQuestionDetailSerializer(serializers.ModelSerializer):
                 return url_str
             return None
 
+    class Meta:
+        model = CTFQuestion
+        fields = '__all__'
 
 class CTFFlagsSerializer(serializers.ModelSerializer):
     creator = core_serializers.CustomUserSerializer(read_only=True)
