@@ -152,7 +152,7 @@ class EscapeRoomQuestionForContestantsListAPIView(generics.ListAPIView):
 
 class CTFQuestionListAPIView(generics.ListAPIView):
     serializer_class = serializers.CTFQuestionListCreateSerializer
-    queryset = models.CTFQuestion.objects.all()
+    queryset = models.CTFQuestion.objects.filter(is_shown=True)
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
