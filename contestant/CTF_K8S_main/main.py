@@ -217,7 +217,7 @@ def deploy_ftp_challenge(challenge_image, ports):
             port=port.port,
             target_port=port.port,
             protocol="TCP"
-        ) for port in ports if port.name != 'ftp-passive'
+        ) for port in ports if port.title != 'ftp-passive'
     ]
 
     service_ports.append(
@@ -241,13 +241,13 @@ def deploy_ftp_challenge(challenge_image, ports):
     )
 
     core_v1 = client.CoreV1Api()
-    service_response = core_v1.patch_namespaced_service(namespace="default", body=service)
+    service_response = core_v1.patch_namespaced_service(namespace="default", body=service,name=f"challenge-service-{instance_id}")
     print(f"Service challenge-service-{instance_id} updated.")
 
     # Map container ports
     container_ports = [
         client.V1ContainerPort(container_port=port.port, name=port.title)
-        for port in ports if port.name != 'ftp-passive'
+        for port in ports if port.title != 'ftp-passive'
     ]
 
     container_ports.append(
