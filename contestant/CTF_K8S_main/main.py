@@ -1,7 +1,7 @@
 import uuid
 from kubernetes import client, config
 from kubernetes.stream import stream
-import timg
+import time
 
 
 def deploy_challenge(challenge_image, ports):
@@ -14,12 +14,11 @@ def deploy_challenge(challenge_image, ports):
 
     resources = client.V1ResourceRequirements(
         limits={
-            "cpu": "500m",
-            "memory": "500m"
+            "cpu": "100m",
+            "memory": "256Mi"
         },
         requests={
-            "cpu": "500m",
-            "memory": "500m"
+            "memory": "256Mi"
         }
     )
     # Map container ports
