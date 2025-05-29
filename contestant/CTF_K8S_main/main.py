@@ -2,10 +2,11 @@ import uuid
 from kubernetes import client, config
 
 def deploy_challenge(challenge_image, ports):
+    print(ports)
     base_url = "192.168.36.2:8182"
     instance_id = str(uuid.uuid4())[:8]
 
-    config.load_kube_config()
+    config.load_kube_config("/root/.kube")
 
     # Map container ports
     container_ports = [
@@ -50,9 +51,9 @@ def deploy_challenge(challenge_image, ports):
     # Create service ports for NodePort service
     service_ports = [
         client.V1ServicePort(
-            name=port["title"],
-            port=port["port"],
-            target_port=port["port"],
+            name=port.title,
+            port=port.port,
+            target_port=port.port,
             protocol="TCP"
         ) for port in ports
     ]
@@ -77,7 +78,22 @@ def deploy_challenge(challenge_image, ports):
     for port in service_response.spec.ports:
         port_map[port.name] = port.node_port
 
-    urls = {title: f"http://localhost:{node_port}" for title, node_port in port_map.items() if node_port}
+    if "ctf-smart-developer" in challenge_image and "ssh" in port_map:
+        ssh_node_port = port_map["ssh"]
+        server_address = f"176.101.48.153:{ssh_node_port}"
+        
+        deployment.spec.template.spec.containers[0].env = [
+            client.V1EnvVar(name="SERVER_ADDRESS", value=server_address)
+        ]
+        
+        apps_v1.patch_namespaced_deployment(
+            name=f"challenge-instance-{instance_id}",
+            namespace="default",
+            body=deployment
+        )
+        print(f"Updated deployment with SERVER_ADDRESS: {server_address}")
+
+    urls = {title: f"http://176.101.48.153:{node_port}" for title, node_port in port_map.items() if node_port}
 
     return urls
 
