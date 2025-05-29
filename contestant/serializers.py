@@ -225,7 +225,8 @@ class TeamEscapeRoomQuestionSerializer(serializers.ModelSerializer):
                 raise exceptions.FlagIsWrong()
             team.coin += escape_room_question.coin
             team.score += escape_room_question.score
-
+            team.save()
+            
             validated_data['team_id'] = team.id
             instance = super().create(validated_data)
             return instance
