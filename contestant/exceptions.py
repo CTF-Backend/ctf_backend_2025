@@ -16,6 +16,11 @@ class AnswerLimitExceeded(AppException):
     message_en = 'The maximum number of correct answers for this question has been reached.'
 
 
+class AnswerSubmissionEnded(AppException):
+    message = 'مهلت ارسال پاسخ به اتمام رسیده است.'
+    message_en = 'Answer submission has been ended.'
+
+
 class FlagIsWrong(AppException):
     message = 'فلگ ارسال شده نادرست است.'
     message_en = 'The flag is wrong.'
