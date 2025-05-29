@@ -1,5 +1,8 @@
 import uuid
 from kubernetes import client, config
+from kubernetes.stream import stream
+import timg
+
 
 def deploy_challenge(challenge_image, ports):
     print(ports)
@@ -8,6 +11,17 @@ def deploy_challenge(challenge_image, ports):
 
     config.load_kube_config("/root/.kube")
 
+
+    resources = client.V1ResourceRequirements(
+        limits={
+            "cpu": "500m",
+            "memory": "500m"
+        },
+        requests={
+            "cpu": "500m",
+            "memory": "500m"
+        }
+    )
     # Map container ports
     container_ports = [
         client.V1ContainerPort(container_port=port.port, name=port.title)
@@ -33,7 +47,8 @@ def deploy_challenge(challenge_image, ports):
                         client.V1Container(
                             name="challenge-container",
                             image=f"{base_url}/{challenge_image}",
-                            ports=container_ports
+                            ports=container_ports,
+                            resources=resources
                         )
                     ],
                     image_pull_secrets=[
@@ -92,6 +107,56 @@ def deploy_challenge(challenge_image, ports):
             body=deployment
         )
         print(f"Updated deployment with SERVER_ADDRESS: {server_address}")
+
+        print("Waiting for pod to be ready...")
+        time.sleep(10)  # Give some time for the pod to restart with new env vars
+        
+        # Get the pod name
+        pods = core_v1.list_namespaced_pod(
+            namespace="default",
+            label_selector=f"app=challenge,instance={instance_id}"
+        )
+        
+        if pods.items:
+            pod_name = pods.items[0].metadata.name
+            print(f"Found pod: {pod_name}")
+            
+            # Wait for pod to be in Running state
+            max_retries = 30
+            for i in range(max_retries):
+                pod = core_v1.read_namespaced_pod(name=pod_name, namespace="default")
+                if pod.status.phase == "Running":
+                    print("Pod is running, executing commands...")
+                    break
+                print(f"Waiting for pod to be ready... ({i+1}/{max_retries})")
+                time.sleep(2)
+            else:
+                print("Warning: Pod did not become ready in time")
+                
+            try:
+                # Execute the PHP artisan commands
+                command = ["sh", "-c", "php artisan config:clear && php artisan config:cache"]
+                
+                exec_response = stream(
+                    core_v1.connect_get_namespaced_pod_exec,
+                    name=pod_name,
+                    namespace="default",
+                    command=command,
+                    container="challenge-container",
+                    stderr=True,
+                    stdin=False,
+                    stdout=True,
+                    tty=False
+                )
+                
+                print("Command execution output:")
+                print(exec_response)
+                print("PHP artisan commands executed successfully")
+                
+            except Exception as e:
+                print(f"Error executing command in pod: {e}")
+        else:
+            print("No pods found for the deployment")
 
     urls = {title: f"http://176.101.48.153:{node_port}" for title, node_port in port_map.items() if node_port}
 
