@@ -2,7 +2,7 @@ import uuid
 from kubernetes import client, config
 from kubernetes.stream import stream
 import time
-
+import json
 
 def deploy_challenge(challenge_image, ports):
     print(ports)
